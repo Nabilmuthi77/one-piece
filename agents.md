@@ -34,3 +34,8 @@ Berikut adalah 2 pilihan cara membuatnya:
 
 **Kesimpulan:** 
 Kamu tetap bisa full ngoding Python 100% menggunakan API persis seperti kodemu saat ini. Untuk mendapatkan APK tanpa perlu install framework Flutter di PC lokalmu, **Opsi 1** adalah jalan pintas terbaik!
+
+---
+
+### Catatan Pengembangan (To-Do List)
+* **GitHub Actions Warnings**: Saat build APK via GitHub Actions, muncul warning kuning (deprecated) untuk `actions/setup-java@v4`. Saat ingin develop APK lagi atau memperbaiki build script (`build.yml`), **pastikan ganti `actions/setup-java@v4` menjadi `actions/setup-java@v5`** supaya log-nya bersih dan terhindar dari warning.
