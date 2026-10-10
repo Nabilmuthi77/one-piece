@@ -206,16 +206,6 @@ def main(page: ft.Page):
             open_modal(current_char)
 
     def on_view_pop(e):
-        if is_locked:
-            if len(page.views) > 1:
-                # Aggressively force Flet frontend to restore the view
-                # by syncing the pop and re-appending it instantly.
-                v = page.views.pop()
-                page.update()
-                page.views.append(v)
-                page.update()
-            return
-        
         if len(page.views) > 1:
             page.views.pop()
             page.update()
@@ -322,7 +312,8 @@ def main(page: ft.Page):
             route="/fullscreen",
             controls=[fs_overlay],
             padding=0,
-            bgcolor=ft.Colors.BLACK
+            bgcolor=ft.Colors.BLACK,
+            can_pop=False
         )
         page.views.append(fs_view)
         page.update()
