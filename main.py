@@ -244,7 +244,6 @@ def main(page: ft.Page):
                 shape=ft.CircleBorder(),
                 padding=12
             )
-            fs_close_btn.visible = True
             fs_image_container.border = None
             page.update()
         else:
@@ -266,9 +265,9 @@ def main(page: ft.Page):
                 shape=ft.CircleBorder(),
                 padding=12
             )
-            fs_close_btn.visible = False
             fs_image_container.border = ft.Border.all(12, ft.Colors.BLUE_500)
             page.update()
+
 
     fs_dlg_image = ft.Image(src="", fit=ft.BoxFit.CONTAIN, border_radius=12)
     fs_image_container = ft.Container(content=fs_dlg_image, padding=0, border_radius=24, clip_behavior=ft.ClipBehavior.ANTI_ALIAS)
@@ -284,46 +283,16 @@ def main(page: ft.Page):
             padding=12
         )
     )
-    fs_close_btn = ft.IconButton(
-        icon=ft.Icons.CLOSE_ROUNDED, 
-        on_click=close_fs, 
-        icon_color=ft.Colors.WHITE, 
-        icon_size=24, 
-        tooltip="Close Fullscreen",
-        style=ft.ButtonStyle(
-            bgcolor=ft.Colors.with_opacity(0.6, "#334155"),
-            shape=ft.CircleBorder(),
-            padding=12
-        )
-    )
-
-    fs_dlg_name = ft.Text("", size=28, weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE, text_align=ft.TextAlign.CENTER)
     fs_overlay = ft.Container(
         content=ft.Stack([
             ft.Container(
-                content=ft.Stack([
-                    fs_image_container,
-                    ft.Container(
-                        content=ft.Row(
-                            [
-                                ft.Container(
-                                    content=fs_dlg_name,
-                                    bgcolor=ft.Colors.BLUE_500,
-                                    padding=ft.Padding(left=30, right=30, top=10, bottom=10),
-                                    border_radius=30,
-                                )
-                            ],
-                            alignment=ft.MainAxisAlignment.CENTER
-                        ),
-                        bottom=-25, left=0, right=0
-                    )
-                ], clip_behavior=ft.ClipBehavior.NONE),
+                content=fs_image_container,
                 alignment=ft.Alignment.CENTER,
                 expand=True,
                 top=0, bottom=0, left=0, right=0
             ),
             ft.Container(
-                content=ft.Row([lock_btn, fs_close_btn], alignment=ft.MainAxisAlignment.END, spacing=0),
+                content=ft.Row([lock_btn], alignment=ft.MainAxisAlignment.END, spacing=0),
                 alignment=ft.Alignment.TOP_RIGHT,
                 padding=ft.Padding(20, 50, 20, 20),
                 top=0, right=0, left=0
@@ -342,7 +311,6 @@ def main(page: ft.Page):
         except:
             pass
         fs_dlg_image.src = img_src
-        fs_dlg_name.value = name
         is_locked = True
         if wakelock:
             try:
@@ -361,7 +329,6 @@ def main(page: ft.Page):
             shape=ft.CircleBorder(),
             padding=12
         )
-        fs_close_btn.visible = False
         fs_image_container.border = ft.Border.all(12, ft.Colors.BLUE_500)
         page.window.full_screen = True
         
