@@ -20,11 +20,17 @@ ACCENT = "#0ea5e9"
 WHATSAPP = "#25D366"
 
 def main(page: ft.Page):
-    page.title = "One Piece Archive"
+    page.title = "One Piece"
     page.theme_mode = ft.ThemeMode.DARK
     page.bgcolor = DARK_BG
     page.padding = 0
-    page.scroll = ft.ScrollMode.AUTO
+    page.scroll = None  # Using fixed page, scrolling inner content
+
+    
+    # Enable keyboard event to intercept Android back button (Escape)
+    def on_keyboard(e: ft.KeyboardEvent):
+        pass # we'll handle this in on_dismiss instead
+    page.on_keyboard_event = on_keyboard
     
     page.fonts = {
         "Outfit": "https://raw.githubusercontent.com/google/fonts/main/ofl/outfit/Outfit%5Bwght%5D.ttf"
@@ -119,7 +125,7 @@ def main(page: ft.Page):
             render_page()
             
         if page.height:
-            main_content.min_height = max(0, page.height - 380)
+            pass # we no longer need min_height hack
         page.update()
 
     page.on_resize = on_page_resize
@@ -171,8 +177,20 @@ def main(page: ft.Page):
     dlg = ft.AlertDialog(content=ft.Container(), content_padding=0, shape=ft.RoundedRectangleBorder(radius=24))
 
     def close_fs(e):
+        nonlocal is_locked
+        is_locked = False
+        try:
+            page.window.prevent_display_sleep = False
+        except:
+            pass
         page.window.full_screen = False
         page.pop_dialog()
+
+    def enforce_lock(e):
+        # Prevent Android back button from dismissing dialog while locked
+        if is_locked:
+            page.show_dialog(fs_dlg)
+            page.update()
 
     is_locked = False
     def toggle_lock(e):
@@ -181,6 +199,10 @@ def main(page: ft.Page):
             close_fs(e)
         else:
             is_locked = True
+            try:
+                page.window.prevent_display_sleep = True
+            except:
+                pass
             lock_btn.icon = ft.Icons.LOCK_ROUNDED
             lock_btn.icon_color = ft.Colors.WHITE
             lock_btn.style = ft.ButtonStyle(
@@ -256,7 +278,8 @@ def main(page: ft.Page):
         ),
         content_padding=0,
         inset_padding=0,
-        modal=True
+        modal=True,
+        on_dismiss=enforce_lock
     )
 
     def open_fs_locked(img_src, name):
@@ -264,6 +287,10 @@ def main(page: ft.Page):
         fs_dlg_image.src = img_src
         fs_dlg_name.value = name
         is_locked = True
+        try:
+            page.window.prevent_display_sleep = True
+        except:
+            pass
         lock_btn.icon = ft.Icons.LOCK_ROUNDED
         lock_btn.icon_color = ft.Colors.WHITE
         lock_btn.style = ft.ButtonStyle(
@@ -370,6 +397,15 @@ def main(page: ft.Page):
         prev_btn.disabled = current_page == 1
         next_btn.disabled = current_page == total_pages
 
+        # Dynamic footer visibility instead of structural layout changes
+        # This completely prevents search field focus drops!
+        if len(filtered_characters) <= 2:
+            footer_inline.visible = False
+            footer_fixed.visible = True
+        else:
+            footer_inline.visible = True
+            footer_fixed.visible = False
+
         start_idx = (current_page - 1) * items_per_page
         end_idx = start_idx + items_per_page
 
@@ -426,35 +462,43 @@ def main(page: ft.Page):
         padding=ft.Padding(20, 50, 20, 10),
     )
 
-    footer = ft.Container(
-        content=ft.Column([
-            ft.Container(
-                content=ft.Image(src="wave.svg", fit=ft.BoxFit.FILL, width=float('inf'), height=60),
-                width=float('inf'),
-                height=60,
-            ),
-            ft.Container(
-                content=ft.Column([
-                    ft.Text("Made for fun by me", color=ft.Colors.WHITE, weight=ft.FontWeight.BOLD, size=16),
-                    ft.Container(
-                        content=ft.Row([
-                            ft.Image(src="wa.svg", width=24, height=24),
-                            ft.Text("Contact me", color=ft.Colors.WHITE, weight=ft.FontWeight.BOLD, size=16)
-                        ], alignment=ft.MainAxisAlignment.CENTER, spacing=10),
-                        bgcolor=WHATSAPP,
-                        padding=ft.Padding(20, 10, 20, 10),
-                        border_radius=30,
-                        width=200,
-                        url="https://wa.me/6282258941501"
-                    )
-                ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
-                bgcolor=ACCENT,
-                padding=ft.Padding(20, 0, 20, 40),
-                width=float('inf')
-            )
-        ], spacing=-2),
-        width=float('inf')
-    )
+    def create_footer():
+        return ft.Container(
+            content=ft.Column([
+                ft.Container(
+                    content=ft.Image(src="wave.svg", fit=ft.BoxFit.FILL, width=float('inf'), height=60),
+                    width=float('inf'),
+                    height=60,
+                ),
+                ft.Container(
+                    content=ft.Column([
+                        ft.Text("Made for fun by me", color=ft.Colors.WHITE, weight=ft.FontWeight.BOLD, size=16),
+                        ft.Container(
+                            content=ft.Row([
+                                ft.Image(src="wa.svg", width=24, height=24),
+                                ft.Text("Contact me", color=ft.Colors.WHITE, weight=ft.FontWeight.BOLD, size=16)
+                            ], alignment=ft.MainAxisAlignment.CENTER, spacing=10),
+                            bgcolor=WHATSAPP,
+                            padding=ft.Padding(20, 10, 20, 10),
+                            border_radius=30,
+                            width=200,
+                            url="https://wa.me/6282258941501"
+                        )
+                    ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                    bgcolor=ACCENT,
+                    padding=ft.Padding(20, 0, 20, 40),
+                    width=float('inf')
+                )
+            ], spacing=-2),
+            width=float('inf')
+        )
+
+    footer_inline = create_footer()
+    footer_fixed = create_footer()
+    footer_fixed.bottom = 0
+    footer_fixed.left = 0
+    footer_fixed.right = 0
+    footer_fixed.visible = False
 
     main_content = ft.Container(
         content=ft.Column([
@@ -464,11 +508,18 @@ def main(page: ft.Page):
         ], alignment=ft.MainAxisAlignment.START)
     )
 
-    page.add(
+    root_scroll_col = ft.Column([
         header,
         main_content,
-        footer
-    )
+        footer_inline
+    ], spacing=0, scroll=ft.ScrollMode.AUTO, expand=True)
+
+    main_stack = ft.Stack([
+        root_scroll_col,
+        footer_fixed
+    ], expand=True)
+
+    page.add(main_stack)
 
     try:
         resp = requests.get(API_URL)
