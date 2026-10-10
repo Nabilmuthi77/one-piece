@@ -451,7 +451,7 @@ def main(page: ft.Page):
                     )
                 ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
                 bgcolor=ACCENT,
-                padding=ft.Padding(20, 0, 20, 40),
+                padding=ft.Padding(20, 0, 20, 80),
                 width=float('inf')
             )
         ], spacing=-2),
