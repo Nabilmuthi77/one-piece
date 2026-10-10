@@ -198,10 +198,12 @@ def main(page: ft.Page):
         if len(page.views) > 1 and page.views[-1].route == "/fullscreen":
             page.views.pop()
             
-        if current_char:
-            open_modal(current_char)
-        
         page.update()
+        
+        if current_char:
+            import asyncio
+            await asyncio.sleep(0.1)
+            open_modal(current_char)
 
     def on_view_pop(e):
         if len(page.views) > 1:
@@ -285,6 +287,8 @@ def main(page: ft.Page):
     async def open_fs_locked(img_src, name):
         nonlocal is_locked
         page.pop_dialog()
+        import asyncio
+        await asyncio.sleep(0.1)
         fs_dlg_image.src = img_src
         is_locked = True
         if wakelock:
@@ -317,12 +321,14 @@ def main(page: ft.Page):
         page.views.append(fs_view)
         page.update()
 
-    def close_modal(e):
-        page.pop_dialog()
-
     def open_modal(char):
         nonlocal current_char
         current_char = char
+        
+        def close_this(e):
+            dlg.open = False
+            page.update()
+            
         img_src = BASE_IMG_URL + char.get('image', '') if char.get('image') else 'https://via.placeholder.com/400x500?text=No+Image'
         status = char.get('status', 'Unknown')
         
@@ -351,7 +357,7 @@ def main(page: ft.Page):
                 ft.Container(
                     content=ft.IconButton(
                         icon=ft.Icons.CLOSE, 
-                        on_click=close_modal, 
+                        on_click=close_this, 
                         bgcolor=ft.Colors.with_opacity(0.5, ft.Colors.BLACK), 
                         icon_color=ft.Colors.WHITE
                     ),
@@ -405,6 +411,7 @@ def main(page: ft.Page):
             shape=ft.RoundedRectangleBorder(radius=24),
             bgcolor=get_card_bg()
         )
+        
         page.show_dialog(dlg)
 
     def render_page():
