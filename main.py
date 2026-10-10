@@ -206,15 +206,18 @@ def main(page: ft.Page):
             open_modal(current_char)
 
     def on_view_pop(e):
-        if len(page.views) > 1:
-            if e.view.route == "/fullscreen":
-                # Block hardware back button in fullscreen mode!
-                # Force an update so if the frontend popped it natively, it gets restored instantly.
+        if is_locked:
+            if len(page.views) > 1:
+                # Aggressively force Flet frontend to restore the view
+                # by syncing the pop and re-appending it instantly.
+                v = page.views.pop()
                 page.update()
-                return
-            
-            # For any other views, allow popping
-            page.views.remove(e.view)
+                page.views.append(v)
+                page.update()
+            return
+        
+        if len(page.views) > 1:
+            page.views.pop()
             page.update()
 
     page.on_view_pop = on_view_pop
