@@ -23,19 +23,19 @@ def main(page: ft.Page):
     wakelock = None
     if page.platform in [ft.PagePlatform.ANDROID, ft.PagePlatform.IOS]:
         wakelock = ft.Wakelock()
-    
+
     page.title = "One Piece"
     page.theme_mode = ft.ThemeMode.DARK
     page.bgcolor = DARK_BG
     page.padding = 0
     page.scroll = None  # Using fixed page, scrolling inner content
 
-    
+
     # Enable keyboard event to intercept Android back button (Escape)
     def on_keyboard(e: ft.KeyboardEvent):
         pass # we'll handle this in on_dismiss instead
     page.on_keyboard_event = on_keyboard
-    
+
     page.fonts = {
         "Outfit": "https://raw.githubusercontent.com/google/fonts/main/ofl/outfit/Outfit%5Bwght%5D.ttf"
     }
@@ -121,14 +121,14 @@ def main(page: ft.Page):
         if page.width >= 1200: cols = 5
         elif page.width >= 900: cols = 4
         elif page.width >= 600: cols = 3
-        
+
         if len(masonry_columns) != cols:
             masonry_columns.clear()
             for _ in range(cols):
                 masonry_columns.append(ft.Column(expand=1, spacing=15))
             grid.content.controls = masonry_columns
             render_page()
-            
+
         if page.height:
             pass # we no longer need min_height hack
         page.update()
@@ -136,7 +136,7 @@ def main(page: ft.Page):
     page.on_resize = on_page_resize
 
     page_info = ft.Text("Page 1", weight=ft.FontWeight.BOLD, color=DARK_TEXT_MUTED)
-    
+
     def on_prev(e):
         nonlocal current_page
         if current_page > 1:
@@ -152,7 +152,7 @@ def main(page: ft.Page):
 
     prev_btn = ft.FilledButton("← Prev", on_click=on_prev, style=ft.ButtonStyle(bgcolor=ACCENT, color=ft.Colors.WHITE, shape=ft.RoundedRectangleBorder(radius=25)))
     next_btn = ft.FilledButton("Next →", on_click=on_next, style=ft.ButtonStyle(bgcolor=ACCENT, color=ft.Colors.WHITE, shape=ft.RoundedRectangleBorder(radius=25)))
-    
+
     pagination_row = ft.Row([prev_btn, page_info, next_btn], alignment=ft.MainAxisAlignment.CENTER, visible=False)
     pagination_container = ft.Container(content=pagination_row, padding=ft.Padding(0, 20, 0, 40))
 
@@ -193,13 +193,13 @@ def main(page: ft.Page):
             except:
                 pass
         page.window.full_screen = False
-        
+
         # Pop the fullscreen view if it's currently on top
         if len(page.views) > 1 and page.views[-1].route == "/fullscreen":
             page.views.pop()
-            
+
         page.update()
-        
+
         if current_char:
             import asyncio
             await asyncio.sleep(0.1)
@@ -249,10 +249,10 @@ def main(page: ft.Page):
     fs_dlg_image = ft.Image(src="", fit=ft.BoxFit.CONTAIN, border_radius=12)
     fs_image_container = ft.Container(content=fs_dlg_image, padding=0, border_radius=24, clip_behavior=ft.ClipBehavior.ANTI_ALIAS)
     lock_btn = ft.IconButton(
-        icon=ft.Icons.LOCK_OPEN_ROUNDED, 
-        on_click=toggle_lock, 
-        icon_color=ft.Colors.WHITE, 
-        icon_size=24, 
+        icon=ft.Icons.LOCK_OPEN_ROUNDED,
+        on_click=toggle_lock,
+        icon_color=ft.Colors.WHITE,
+        icon_size=24,
         tooltip="Unlock View",
         style=ft.ButtonStyle(
             bgcolor=ft.Colors.with_opacity(0.2, ft.Colors.WHITE),
@@ -306,7 +306,7 @@ def main(page: ft.Page):
         )
         fs_image_container.border = ft.Border.all(12, ft.Colors.BLUE_500)
         page.window.full_screen = True
-        
+
         fs_overlay.visible = True
         fs_view = ft.View(
             route="/fullscreen",
@@ -321,14 +321,19 @@ def main(page: ft.Page):
     def open_modal(char):
         nonlocal current_char
         current_char = char
-        
+
+        search_input.disabled = True
+        search_input.update()
+        search_input.disabled = False
+        search_input.update()
+
         def close_this(e):
             dlg.open = False
             page.update()
-            
+
         img_src = BASE_IMG_URL + char.get('image', '') if char.get('image') else 'https://via.placeholder.com/400x500?text=No+Image'
         status = char.get('status', 'Unknown')
-        
+
         status_color = ft.Colors.GREEN if status.lower() == 'alive' else (ft.Colors.RED if status.lower() == 'deceased' else get_text_muted())
 
         def info_item(label, value):
@@ -353,9 +358,9 @@ def main(page: ft.Page):
                 ),
                 ft.Container(
                     content=ft.IconButton(
-                        icon=ft.Icons.CLOSE, 
-                        on_click=close_this, 
-                        bgcolor=ft.Colors.with_opacity(0.5, ft.Colors.BLACK), 
+                        icon=ft.Icons.CLOSE,
+                        on_click=close_this,
+                        bgcolor=ft.Colors.with_opacity(0.5, ft.Colors.BLACK),
                         icon_color=ft.Colors.WHITE
                     ),
                     top=10,
@@ -365,11 +370,14 @@ def main(page: ft.Page):
             ft.Container(
                 content=ft.Column([
                     ft.Row([
-                        ft.Text(char.get('name', 'Unknown'), size=32, weight=ft.FontWeight.BOLD, color=get_text_main()),
+                        ft.Container(
+                            content=ft.Text(char.get('name', 'Unknown'), size=32, weight=ft.FontWeight.BOLD, color=get_text_main(), max_lines=2, overflow=ft.TextOverflow.ELLIPSIS),
+                            expand=True
+                        ),
                         ft.IconButton(
-                            icon=ft.Icons.LOCK_ROUNDED, 
-                            on_click=lambda e, src=img_src, n=char.get('name', 'Unknown'): page.run_task(open_fs_locked, src, n), 
-                            tooltip="Lock View", 
+                            icon=ft.Icons.LOCK_ROUNDED,
+                            on_click=lambda e, src=img_src, n=char.get('name', 'Unknown'): page.run_task(open_fs_locked, src, n),
+                            tooltip="Lock View",
                             icon_color=get_text_muted()
                         )
                     ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
@@ -408,7 +416,7 @@ def main(page: ft.Page):
             shape=ft.RoundedRectangleBorder(radius=24),
             bgcolor=get_card_bg()
         )
-        
+
         page.show_dialog(dlg)
 
     def render_page():
@@ -418,7 +426,7 @@ def main(page: ft.Page):
         total_pages = max(1, math.ceil(len(filtered_characters) / items_per_page))
         page_info.value = f"Page {current_page} of {total_pages}"
         page_info.color = get_text_muted()
-        
+
         prev_btn.disabled = current_page == 1
         next_btn.disabled = current_page == total_pages
 
@@ -436,7 +444,7 @@ def main(page: ft.Page):
 
         for i, char in enumerate(filtered_characters[start_idx:end_idx]):
             img_src = BASE_IMG_URL + char.get('image', '') if char.get('image') else 'https://via.placeholder.com/400x500?text=No+Image'
-            
+
             card_content = ft.Stack([
                 ft.Image(
                     src=img_src,
@@ -465,16 +473,16 @@ def main(page: ft.Page):
                 shadow=ft.BoxShadow(spread_radius=1, blur_radius=10, color=ft.Colors.BLACK_26),
                 on_click=lambda e, c=char: open_modal(c)
             )
-            
+
             col_idx = i % len(masonry_columns)
             masonry_columns[col_idx].controls.append(card_container)
-        
+
         page.update()
 
     loading_text = ft.Text("Fetching characters...", size=20, color=get_text_muted())
     loading_container = ft.Container(
-        content=ft.Column([ft.ProgressRing(color=ACCENT), loading_text], horizontal_alignment=ft.CrossAxisAlignment.CENTER), 
-        alignment=ft.Alignment.CENTER, 
+        content=ft.Column([ft.ProgressRing(color=ACCENT), loading_text], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+        alignment=ft.Alignment.CENTER,
         expand=True
     )
 
@@ -553,9 +561,9 @@ def main(page: ft.Page):
             filtered_characters = all_characters
             loading_container.visible = False
             pagination_row.visible = True
-            
+
             # Trigger resize once to layout columns
-            on_page_resize(None) 
+            on_page_resize(None)
         else:
             loading_text.value = "Failed to load characters."
             page.update()
