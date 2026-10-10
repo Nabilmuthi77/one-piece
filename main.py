@@ -315,8 +315,7 @@ def main(page: ft.Page):
         page.update()
 
     def close_modal(e):
-        dlg.open = False
-        page.update()
+        page.pop_dialog()
 
     def open_modal(char):
         img_src = BASE_IMG_URL + char.get('image', '') if char.get('image') else 'https://via.placeholder.com/400x500?text=No+Image'
@@ -398,10 +397,7 @@ def main(page: ft.Page):
         dlg.content_padding = 0
         dlg.bgcolor = get_card_bg()
         dlg.content = ft.Container(content, width=600)
-        if dlg not in page.overlay:
-            page.overlay.append(dlg)
-        dlg.open = True
-        page.update()
+        page.show_dialog(dlg)
 
     def render_page():
         for col in masonry_columns:
