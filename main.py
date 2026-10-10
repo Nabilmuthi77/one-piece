@@ -207,12 +207,15 @@ def main(page: ft.Page):
 
     def on_view_pop(e):
         if len(page.views) > 1:
-            top_route = page.views[-1].route
-            if top_route == "/fullscreen":
-                pass
-            else:
-                page.views.pop()
+            if e.view.route == "/fullscreen":
+                # Block hardware back button in fullscreen mode!
+                # Force an update so if the frontend popped it natively, it gets restored instantly.
                 page.update()
+                return
+            
+            # For any other views, allow popping
+            page.views.remove(e.view)
+            page.update()
 
     page.on_view_pop = on_view_pop
 
