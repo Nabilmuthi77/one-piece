@@ -226,7 +226,27 @@ def main(page: ft.Page):
     async def toggle_lock(e):
         nonlocal is_locked
         if is_locked:
-            await close_fs(e)
+            is_locked = False
+            if wakelock:
+                try:
+                    await wakelock.disable()
+                except Exception as ex:
+                    print(f"Wakelock error (disable): {ex}")
+            else:
+                try:
+                    page.window.prevent_display_sleep = False
+                except:
+                    pass
+            lock_btn.icon = ft.Icons.LOCK_OPEN_ROUNDED
+            lock_btn.icon_color = ft.Colors.WHITE
+            lock_btn.style = ft.ButtonStyle(
+                bgcolor=ft.Colors.with_opacity(0.2, ft.Colors.WHITE),
+                shape=ft.CircleBorder(),
+                padding=12
+            )
+            fs_close_btn.visible = True
+            fs_image_container.border = None
+            page.update()
         else:
             is_locked = True
             if wakelock:
