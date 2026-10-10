@@ -20,6 +20,11 @@ ACCENT = "#0ea5e9"
 WHATSAPP = "#25D366"
 
 def main(page: ft.Page):
+    wakelock = None
+    if page.platform in [ft.PagePlatform.ANDROID, ft.PagePlatform.IOS]:
+        wakelock = ft.Wakelock()
+        page.overlay.append(wakelock)
+    
     page.title = "One Piece"
     page.theme_mode = ft.ThemeMode.DARK
     page.bgcolor = DARK_BG
@@ -176,33 +181,47 @@ def main(page: ft.Page):
 
     dlg = ft.AlertDialog(content=ft.Container(), content_padding=0, shape=ft.RoundedRectangleBorder(radius=24))
 
-    def close_fs(e):
+    async def close_fs(e):
         nonlocal is_locked
         is_locked = False
-        try:
-            page.window.prevent_display_sleep = False
-        except:
-            pass
-        page.window.full_screen = False
-        page.pop_dialog()
-
-    def enforce_lock(e):
-        # Prevent Android back button from dismissing dialog while locked
-        if is_locked:
-            page.show_dialog(fs_dlg)
-            page.update()
-
-    is_locked = False
-    def toggle_lock(e):
-        nonlocal is_locked
-        if is_locked:
-            close_fs(e)
-        else:
-            is_locked = True
+        if wakelock:
             try:
-                page.window.prevent_display_sleep = True
+                await wakelock.disable()
+            except Exception as ex:
+                print(f"Wakelock error (disable): {ex}")
+        else:
+            try:
+                page.window.prevent_display_sleep = False
             except:
                 pass
+        page.window.full_screen = False
+        page.on_view_pop = None
+        fs_overlay.visible = False
+        page.update()
+
+    def on_lifecycle(e):
+        if e.data == ft.AppLifecycleState.RESUME.name and is_locked:
+            page.window.full_screen = True
+            page.update()
+    page.on_app_lifecycle_state_change = on_lifecycle
+
+    is_locked = False
+    async def toggle_lock(e):
+        nonlocal is_locked
+        if is_locked:
+            await close_fs(e)
+        else:
+            is_locked = True
+            if wakelock:
+                try:
+                    await wakelock.enable()
+                except Exception as ex:
+                    print(f"Wakelock error (enable): {ex}")
+            else:
+                try:
+                    page.window.prevent_display_sleep = True
+                except:
+                    pass
             lock_btn.icon = ft.Icons.LOCK_ROUNDED
             lock_btn.icon_color = ft.Colors.WHITE
             lock_btn.style = ft.ButtonStyle(
@@ -242,55 +261,61 @@ def main(page: ft.Page):
     )
 
     fs_dlg_name = ft.Text("", size=28, weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE, text_align=ft.TextAlign.CENTER)
-    fs_dlg = ft.AlertDialog(
-        content=ft.Container(
-            content=ft.Stack([
-                ft.Container(
-                    content=ft.Stack([
-                        fs_image_container,
-                        ft.Container(
-                            content=ft.Row(
-                                [
-                                    ft.Container(
-                                        content=fs_dlg_name,
-                                        bgcolor=ft.Colors.BLUE_500,
-                                        padding=ft.Padding(left=30, right=30, top=10, bottom=10),
-                                        border_radius=30,
-                                    )
-                                ],
-                                alignment=ft.MainAxisAlignment.CENTER
-                            ),
-                            bottom=-25, left=0, right=0
-                        )
-                    ], clip_behavior=ft.ClipBehavior.NONE),
-                    alignment=ft.Alignment.CENTER,
-                    expand=True,
-                    top=0, bottom=0, left=0, right=0
-                ),
-                ft.Container(
-                    content=ft.Row([lock_btn, fs_close_btn], alignment=ft.MainAxisAlignment.END, spacing=0),
-                    alignment=ft.Alignment.TOP_RIGHT,
-                    padding=ft.Padding(20, 50, 20, 20),
-                    top=0, right=0, left=0
-                )
-            ], expand=True),
-            bgcolor=ft.Colors.BLACK,
-        ),
-        content_padding=0,
-        inset_padding=0,
-        modal=True,
-        on_dismiss=enforce_lock
+    fs_overlay = ft.Container(
+        content=ft.Stack([
+            ft.Container(
+                content=ft.Stack([
+                    fs_image_container,
+                    ft.Container(
+                        content=ft.Row(
+                            [
+                                ft.Container(
+                                    content=fs_dlg_name,
+                                    bgcolor=ft.Colors.BLUE_500,
+                                    padding=ft.Padding(left=30, right=30, top=10, bottom=10),
+                                    border_radius=30,
+                                )
+                            ],
+                            alignment=ft.MainAxisAlignment.CENTER
+                        ),
+                        bottom=-25, left=0, right=0
+                    )
+                ], clip_behavior=ft.ClipBehavior.NONE),
+                alignment=ft.Alignment.CENTER,
+                expand=True,
+                top=0, bottom=0, left=0, right=0
+            ),
+            ft.Container(
+                content=ft.Row([lock_btn, fs_close_btn], alignment=ft.MainAxisAlignment.END, spacing=0),
+                alignment=ft.Alignment.TOP_RIGHT,
+                padding=ft.Padding(20, 50, 20, 20),
+                top=0, right=0, left=0
+            )
+        ], expand=True),
+        bgcolor=ft.Colors.BLACK,
+        expand=True,
+        visible=False
     )
 
-    def open_fs_locked(img_src, name):
+    async def open_fs_locked(img_src, name):
         nonlocal is_locked
+        try:
+            page.pop_dialog()
+        except:
+            pass
         fs_dlg_image.src = img_src
         fs_dlg_name.value = name
         is_locked = True
-        try:
-            page.window.prevent_display_sleep = True
-        except:
-            pass
+        if wakelock:
+            try:
+                await wakelock.enable()
+            except Exception as ex:
+                print(f"Wakelock error (enable): {ex}")
+        else:
+            try:
+                page.window.prevent_display_sleep = True
+            except:
+                pass
         lock_btn.icon = ft.Icons.LOCK_ROUNDED
         lock_btn.icon_color = ft.Colors.WHITE
         lock_btn.style = ft.ButtonStyle(
@@ -301,9 +326,11 @@ def main(page: ft.Page):
         fs_close_btn.visible = False
         fs_image_container.border = ft.Border.all(12, ft.Colors.BLUE_500)
         page.window.full_screen = True
-        fs_dlg.content.width = page.width
-        fs_dlg.content.height = page.height
-        page.show_dialog(fs_dlg)
+        
+        def prevent_back(e):
+            pass
+        page.on_view_pop = prevent_back
+        fs_overlay.visible = True
         page.update()
 
     def close_modal(e):
@@ -350,7 +377,12 @@ def main(page: ft.Page):
                 content=ft.Column([
                     ft.Row([
                         ft.Text(char.get('name', 'Unknown'), size=32, weight=ft.FontWeight.BOLD, color=get_text_main()),
-                        ft.IconButton(icon=ft.Icons.LOCK_ROUNDED, on_click=lambda e: open_fs_locked(img_src, char.get('name', 'Unknown')), tooltip="Lock View", icon_color=get_text_muted())
+                        ft.IconButton(
+                            icon=ft.Icons.LOCK_ROUNDED, 
+                            on_click=lambda e, src=img_src, n=char.get('name', 'Unknown'): page.run_task(open_fs_locked, src, n), 
+                            tooltip="Lock View", 
+                            icon_color=get_text_muted()
+                        )
                     ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
                     ft.Container(
                         content=ft.Text(status.upper(), color=status_color, weight=ft.FontWeight.BOLD, size=12),
@@ -516,7 +548,8 @@ def main(page: ft.Page):
 
     main_stack = ft.Stack([
         root_scroll_col,
-        footer_fixed
+        footer_fixed,
+        fs_overlay
     ], expand=True)
 
     page.add(main_stack)
