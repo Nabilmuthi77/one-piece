@@ -202,17 +202,13 @@ def main(page: ft.Page):
         page.update()
 
     def on_view_pop(e):
-        if is_locked:
-            # Prevent back button when locked
-            pass
-        else:
-            if len(page.views) > 1:
-                top_route = page.views[-1].route
-                if top_route == "/fullscreen":
-                    page.run_task(close_fs, None)
-                else:
-                    page.views.pop()
-                    page.update()
+        if len(page.views) > 1:
+            top_route = page.views[-1].route
+            if top_route == "/fullscreen":
+                pass
+            else:
+                page.views.pop()
+                page.update()
 
     page.on_view_pop = on_view_pop
 
@@ -226,26 +222,7 @@ def main(page: ft.Page):
     async def toggle_lock(e):
         nonlocal is_locked
         if is_locked:
-            is_locked = False
-            if wakelock:
-                try:
-                    await wakelock.disable()
-                except Exception as ex:
-                    print(f"Wakelock error (disable): {ex}")
-            else:
-                try:
-                    page.window.prevent_display_sleep = False
-                except:
-                    pass
-            lock_btn.icon = ft.Icons.LOCK_OPEN_ROUNDED
-            lock_btn.icon_color = ft.Colors.WHITE
-            lock_btn.style = ft.ButtonStyle(
-                bgcolor=ft.Colors.with_opacity(0.2, ft.Colors.WHITE),
-                shape=ft.CircleBorder(),
-                padding=12
-            )
-            fs_image_container.border = None
-            page.update()
+            await close_fs(e)
         else:
             is_locked = True
             if wakelock:
@@ -305,11 +282,6 @@ def main(page: ft.Page):
 
     async def open_fs_locked(img_src, name):
         nonlocal is_locked
-        try:
-            dlg.open = False
-            page.update()
-        except:
-            pass
         fs_dlg_image.src = img_src
         is_locked = True
         if wakelock:
