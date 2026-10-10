@@ -45,6 +45,7 @@ def main(page: ft.Page):
     filtered_characters = []
     current_page = 1
     items_per_page = 30
+    current_char = None
 
     def get_card_bg(): return LIGHT_CARD if page.theme_mode == ft.ThemeMode.LIGHT else DARK_CARD
     def get_text_main(): return LIGHT_TEXT_MAIN if page.theme_mode == ft.ThemeMode.LIGHT else DARK_TEXT_MAIN
@@ -198,6 +199,9 @@ def main(page: ft.Page):
         # Pop the fullscreen view if it's currently on top
         if len(page.views) > 1 and page.views[-1].route == "/fullscreen":
             page.views.pop()
+            
+        if current_char:
+            open_modal(current_char)
         
         page.update()
 
@@ -282,6 +286,7 @@ def main(page: ft.Page):
 
     async def open_fs_locked(img_src, name):
         nonlocal is_locked
+        page.pop_dialog()
         fs_dlg_image.src = img_src
         is_locked = True
         if wakelock:
@@ -318,6 +323,8 @@ def main(page: ft.Page):
         page.pop_dialog()
 
     def open_modal(char):
+        nonlocal current_char
+        current_char = char
         img_src = BASE_IMG_URL + char.get('image', '') if char.get('image') else 'https://via.placeholder.com/400x500?text=No+Image'
         status = char.get('status', 'Unknown')
         
