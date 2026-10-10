@@ -398,7 +398,8 @@ def main(page: ft.Page):
         dlg.content_padding = 0
         dlg.bgcolor = get_card_bg()
         dlg.content = ft.Container(content, width=600)
-        page.dialog = dlg
+        if dlg not in page.overlay:
+            page.overlay.append(dlg)
         dlg.open = True
         page.update()
 
