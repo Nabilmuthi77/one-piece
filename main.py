@@ -196,8 +196,24 @@ def main(page: ft.Page):
     def toggle_lock(e):
         nonlocal is_locked
         if is_locked:
-            close_fs(e)
+            # Unlock the screen
+            is_locked = False
+            try:
+                page.window.prevent_display_sleep = False
+            except:
+                pass
+            lock_btn.icon = ft.Icons.LOCK_OPEN_ROUNDED
+            lock_btn.icon_color = ft.Colors.WHITE
+            lock_btn.style = ft.ButtonStyle(
+                bgcolor=ft.Colors.with_opacity(0.2, ft.Colors.WHITE),
+                shape=ft.CircleBorder(),
+                padding=12
+            )
+            fs_close_btn.visible = True
+            fs_image_container.border = None
+            page.update()
         else:
+            # Lock the screen
             is_locked = True
             try:
                 page.window.prevent_display_sleep = True
