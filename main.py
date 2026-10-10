@@ -177,9 +177,7 @@ def main(page: ft.Page):
             elif 'observation' in hl: res.append('Kenbunshoku')
             elif 'conqueror' in hl: res.append('Haoshoku')
             else: res.append(h)
-        return ', '.join(res)
 
-    dlg = ft.AlertDialog(content=ft.Container(), content_padding=0, shape=ft.RoundedRectangleBorder(radius=24))
 
     async def close_fs(e):
         nonlocal is_locked
@@ -401,9 +399,12 @@ def main(page: ft.Page):
             )
         ], scroll=ft.ScrollMode.AUTO, tight=True, spacing=0)
 
-        dlg.content_padding = 0
-        dlg.bgcolor = get_card_bg()
-        dlg.content = ft.Container(content, width=600)
+        dlg = ft.AlertDialog(
+            content=ft.Container(content, width=600),
+            content_padding=0,
+            shape=ft.RoundedRectangleBorder(radius=24),
+            bgcolor=get_card_bg()
+        )
         page.show_dialog(dlg)
 
     def render_page():
