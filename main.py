@@ -192,8 +192,8 @@ def main(page: ft.Page):
             fs_image_container.border = ft.Border.all(12, ft.Colors.BLUE_500)
             page.update()
 
-    fs_dlg_image = ft.Image(src="", fit=ft.BoxFit.CONTAIN)
-    fs_image_container = ft.Container(content=fs_dlg_image, padding=0, border_radius=24)
+    fs_dlg_image = ft.Image(src="", fit=ft.BoxFit.CONTAIN, border_radius=12)
+    fs_image_container = ft.Container(content=fs_dlg_image, padding=0, border_radius=24, clip_behavior=ft.ClipBehavior.ANTI_ALIAS)
     lock_btn = ft.IconButton(
         icon=ft.Icons.LOCK_OPEN_ROUNDED, 
         on_click=toggle_lock, 
@@ -238,7 +238,7 @@ def main(page: ft.Page):
                                 ],
                                 alignment=ft.MainAxisAlignment.CENTER
                             ),
-                            bottom=-20, left=0, right=0
+                            bottom=-25, left=0, right=0
                         )
                     ], clip_behavior=ft.ClipBehavior.NONE),
                     alignment=ft.Alignment.CENTER,
@@ -248,12 +248,10 @@ def main(page: ft.Page):
                 ft.Container(
                     content=ft.Row([lock_btn, fs_close_btn], alignment=ft.MainAxisAlignment.END, spacing=0),
                     alignment=ft.Alignment.TOP_RIGHT,
-                    padding=20,
+                    padding=ft.Padding(20, 50, 20, 20),
                     top=0, right=0, left=0
                 )
             ], expand=True),
-            width=2000,
-            height=2000,
             bgcolor=ft.Colors.BLACK,
         ),
         content_padding=0,
@@ -276,6 +274,8 @@ def main(page: ft.Page):
         fs_close_btn.visible = False
         fs_image_container.border = ft.Border.all(12, ft.Colors.BLUE_500)
         page.window.full_screen = True
+        fs_dlg.content.width = page.width
+        fs_dlg.content.height = page.height
         page.show_dialog(fs_dlg)
         page.update()
 
@@ -429,11 +429,9 @@ def main(page: ft.Page):
     footer = ft.Container(
         content=ft.Column([
             ft.Container(
-                content=ft.Image(src="wave.svg", fit=ft.BoxFit.FIT_WIDTH, width=float('inf')),
+                content=ft.Image(src="wave.svg", fit=ft.BoxFit.FILL, width=float('inf'), height=60),
                 width=float('inf'),
                 height=60,
-                alignment=ft.Alignment.TOP_CENTER,
-                clip_behavior=ft.ClipBehavior.HARD_EDGE
             ),
             ft.Container(
                 content=ft.Column([
@@ -451,7 +449,7 @@ def main(page: ft.Page):
                     )
                 ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
                 bgcolor=ACCENT,
-                padding=ft.Padding(20, 0, 20, 80),
+                padding=ft.Padding(20, 0, 20, 40),
                 width=float('inf')
             )
         ], spacing=-2),
