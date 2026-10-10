@@ -1,7 +1,7 @@
 <!-- bro.. gw pengen migrasi in ini menjadi aplikasi android tapi yg simpel aja ga usah pake framework kalo bisa mah kaya flutter dll
 bisa gak pake python doang ? klw datanya mah sama in weh dari api -->
 
-Tulis langkah nya... :
+<!-- Tulis langkah nya... :
 
 Karena kode kamu menggunakan **Flet**, sebenarnya Flet ini di belakang layar menggunakan mesin Flutter. Namun, kamu **tidak perlu ngoding Flutter/Dart sama sekali** (cukup pakai Python ini saja).
 
@@ -33,7 +33,7 @@ Berikut adalah 2 pilihan cara membuatnya:
 6. Hasil `.apk` akan muncul di dalam folder `build/apk/`.
 
 **Kesimpulan:** 
-Kamu tetap bisa full ngoding Python 100% menggunakan API persis seperti kodemu saat ini. Untuk mendapatkan APK tanpa perlu install framework Flutter di PC lokalmu, **Opsi 1** adalah jalan pintas terbaik!
+Kamu tetap bisa full ngoding Python 100% menggunakan API persis seperti kodemu saat ini. Untuk mendapatkan APK tanpa perlu install framework Flutter di PC lokalmu, **Opsi 1** adalah jalan pintas terbaik! -->
 
 ---
 

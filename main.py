@@ -39,7 +39,20 @@ def main(page: ft.Page):
     def get_card_bg(): return LIGHT_CARD if page.theme_mode == ft.ThemeMode.LIGHT else DARK_CARD
     def get_text_main(): return LIGHT_TEXT_MAIN if page.theme_mode == ft.ThemeMode.LIGHT else DARK_TEXT_MAIN
     def get_text_muted(): return LIGHT_TEXT_MUTED if page.theme_mode == ft.ThemeMode.LIGHT else DARK_TEXT_MUTED
-    def get_modal_info_bg(): return ft.Colors.BLACK_12 if page.theme_mode == ft.ThemeMode.LIGHT else ft.Colors.with_opacity(0.06, ft.Colors.WHITE)
+
+    def get_modern_gradient():
+        return ft.LinearGradient(
+            begin=ft.Alignment.TOP_LEFT,
+            end=ft.Alignment.BOTTOM_RIGHT,
+            colors=[
+                ft.Colors.with_opacity(0.08, ACCENT) if page.theme_mode == ft.ThemeMode.LIGHT else ft.Colors.with_opacity(0.15, ACCENT),
+                ft.Colors.with_opacity(0.02, ACCENT) if page.theme_mode == ft.ThemeMode.LIGHT else ft.Colors.with_opacity(0.05, ACCENT),
+            ]
+        )
+
+    def get_modern_border():
+        border_color = ft.Colors.with_opacity(0.2, ACCENT) if page.theme_mode == ft.ThemeMode.LIGHT else ft.Colors.with_opacity(0.3, ACCENT)
+        return ft.Border.all(1, border_color)
 
     def toggle_theme(e):
         page.theme_mode = ft.ThemeMode.LIGHT if page.theme_mode == ft.ThemeMode.DARK else ft.ThemeMode.DARK
@@ -67,7 +80,7 @@ def main(page: ft.Page):
         logo.update()
 
     logo = ft.Container(
-        content=ft.Image(src="assets/one-piece-logo.png", height=120, fit=ft.BoxFit.CONTAIN),
+        content=ft.Image(src="one-piece-logo.png", height=120, fit=ft.BoxFit.CONTAIN),
         on_click=animate_logo,
         scale=1.0,
         animate_scale=ft.Animation(150, ft.AnimationCurve.EASE_OUT)
@@ -104,6 +117,10 @@ def main(page: ft.Page):
                 masonry_columns.append(ft.Column(expand=1, spacing=15))
             grid.content.controls = masonry_columns
             render_page()
+            
+        if page.height:
+            main_content.min_height = max(0, page.height - 380)
+        page.update()
 
     page.on_resize = on_page_resize
 
@@ -175,8 +192,8 @@ def main(page: ft.Page):
             fs_image_container.border = ft.Border.all(12, ft.Colors.BLUE_500)
             page.update()
 
-    fs_dlg_image = ft.Image(src="", fit=ft.BoxFit.COVER, width=550, height=550, border_radius=12)
-    fs_image_container = ft.Container(content=fs_dlg_image, border_radius=24, padding=0)
+    fs_dlg_image = ft.Image(src="", fit=ft.BoxFit.CONTAIN)
+    fs_image_container = ft.Container(content=fs_dlg_image, padding=0, border_radius=24)
     lock_btn = ft.IconButton(
         icon=ft.Icons.LOCK_OPEN_ROUNDED, 
         on_click=toggle_lock, 
@@ -207,36 +224,31 @@ def main(page: ft.Page):
         content=ft.Container(
             content=ft.Stack([
                 ft.Container(
-                    content=ft.Stack(
-                        [
-                            ft.Container(
-                                content=fs_image_container,
-                                top=0, left=0, right=0
+                    content=ft.Stack([
+                        fs_image_container,
+                        ft.Container(
+                            content=ft.Row(
+                                [
+                                    ft.Container(
+                                        content=fs_dlg_name,
+                                        bgcolor=ft.Colors.BLUE_500,
+                                        padding=ft.Padding(left=30, right=30, top=10, bottom=10),
+                                        border_radius=30,
+                                    )
+                                ],
+                                alignment=ft.MainAxisAlignment.CENTER
                             ),
-                            ft.Container(
-                                content=ft.Row(
-                                    [
-                                        ft.Container(
-                                            content=fs_dlg_name,
-                                            bgcolor=ft.Colors.BLUE_500,
-                                            padding=ft.Padding(left=30, right=30, top=10, bottom=10),
-                                            border_radius=30,
-                                        )
-                                    ],
-                                    alignment=ft.MainAxisAlignment.CENTER
-                                ),
-                                top=540, left=0, right=0
-                            )
-                        ],
-                        width=550, height=620
-                    ),
+                            bottom=-20, left=0, right=0
+                        )
+                    ], clip_behavior=ft.ClipBehavior.NONE),
                     alignment=ft.Alignment.CENTER,
+                    expand=True,
                     top=0, bottom=0, left=0, right=0
                 ),
                 ft.Container(
                     content=ft.Row([lock_btn, fs_close_btn], alignment=ft.MainAxisAlignment.END, spacing=0),
                     alignment=ft.Alignment.TOP_RIGHT,
-                    padding=10,
+                    padding=20,
                     top=0, right=0, left=0
                 )
             ], expand=True),
@@ -245,6 +257,7 @@ def main(page: ft.Page):
             bgcolor=ft.Colors.BLACK,
         ),
         content_padding=0,
+        inset_padding=0,
         modal=True
     )
 
@@ -266,24 +279,6 @@ def main(page: ft.Page):
         page.show_dialog(fs_dlg)
         page.update()
 
-    def open_fs(img_src, name):
-        nonlocal is_locked
-        is_locked = False
-        lock_btn.icon = ft.Icons.LOCK_OPEN_ROUNDED
-        lock_btn.icon_color = ft.Colors.WHITE
-        lock_btn.style = ft.ButtonStyle(
-            bgcolor=ft.Colors.with_opacity(0.2, ft.Colors.WHITE),
-            shape=ft.CircleBorder(),
-            padding=12
-        )
-        fs_close_btn.visible = True
-        fs_image_container.border = None
-        fs_dlg_image.src = img_src
-        fs_dlg_name.value = name
-        page.window.full_screen = True
-        page.show_dialog(fs_dlg)
-        page.update()
-
     def close_modal(e):
         page.pop_dialog()
 
@@ -299,10 +294,10 @@ def main(page: ft.Page):
                     ft.Text(label.upper(), size=11, color=get_text_muted(), weight=ft.FontWeight.BOLD),
                     ft.Text(str(value), size=14, color=get_text_main(), weight=ft.FontWeight.W_600)
                 ], spacing=4),
-                bgcolor=get_modal_info_bg(),
-                padding=ft.Padding(left=16, right=16, top=8, bottom=8),
+                gradient=get_modern_gradient(),
+                padding=ft.Padding(left=16, right=16, top=10, bottom=10),
                 border_radius=12,
-                border=ft.Border.all(1, ft.Colors.BLACK_12 if page.theme_mode == ft.ThemeMode.LIGHT else ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
+                border=get_modern_border(),
                 width=float('inf')
             )
 
@@ -311,8 +306,7 @@ def main(page: ft.Page):
                 ft.Container(
                     content=ft.Image(src=img_src, height=250, fit=ft.BoxFit.COVER),
                     width=float('inf'),
-                    border_radius=ft.BorderRadius(top_left=24, top_right=24, bottom_left=0, bottom_right=0),
-                    on_click=lambda e: open_fs(img_src, char.get('name', 'Unknown'))
+                    border_radius=ft.BorderRadius(top_left=24, top_right=24, bottom_left=0, bottom_right=0)
                 ),
                 ft.Container(
                     content=ft.IconButton(
@@ -349,10 +343,10 @@ def main(page: ft.Page):
                             ft.Text("DESCRIPTION", size=11, color=get_text_muted(), weight=ft.FontWeight.BOLD),
                             ft.Text(char.get('description', 'No description available.'), size=14, color=get_text_main())
                         ], spacing=4),
-                        bgcolor=get_modal_info_bg(),
-                        padding=ft.Padding(left=16, right=16, top=10, bottom=10),
+                        gradient=get_modern_gradient(),
+                        padding=ft.Padding(left=16, right=16, top=12, bottom=12),
                         border_radius=12,
-                        border=ft.Border.all(1, ft.Colors.BLACK_12 if page.theme_mode == ft.ThemeMode.LIGHT else ft.Colors.with_opacity(0.1, ft.Colors.WHITE)),
+                        border=get_modern_border(),
                         width=float('inf')
                     )
                 ], spacing=15),
@@ -429,13 +423,13 @@ def main(page: ft.Page):
             logo,
             ft.Container(content=search_input, width=500, alignment=ft.Alignment.CENTER)
         ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
-        padding=ft.Padding(20, 20, 20, 10),
+        padding=ft.Padding(20, 50, 20, 10),
     )
 
     footer = ft.Container(
         content=ft.Column([
             ft.Container(
-                content=ft.Image(src="assets/wave.svg", fit=ft.BoxFit.FIT_WIDTH, width=float('inf')),
+                content=ft.Image(src="wave.svg", fit=ft.BoxFit.FIT_WIDTH, width=float('inf')),
                 width=float('inf'),
                 height=60,
                 alignment=ft.Alignment.TOP_CENTER,
@@ -446,7 +440,7 @@ def main(page: ft.Page):
                     ft.Text("Made for fun by me", color=ft.Colors.WHITE, weight=ft.FontWeight.BOLD, size=16),
                     ft.Container(
                         content=ft.Row([
-                            ft.Image(src="assets/wa.svg", width=24, height=24),
+                            ft.Image(src="wa.svg", width=24, height=24),
                             ft.Text("Contact me", color=ft.Colors.WHITE, weight=ft.FontWeight.BOLD, size=16)
                         ], alignment=ft.MainAxisAlignment.CENTER, spacing=10),
                         bgcolor=WHATSAPP,
@@ -464,11 +458,17 @@ def main(page: ft.Page):
         width=float('inf')
     )
 
+    main_content = ft.Container(
+        content=ft.Column([
+            loading_container,
+            grid,
+            pagination_container
+        ], alignment=ft.MainAxisAlignment.START)
+    )
+
     page.add(
         header,
-        loading_container,
-        grid,
-        pagination_container,
+        main_content,
         footer
     )
 
@@ -477,7 +477,7 @@ def main(page: ft.Page):
         if resp.status_code == 200:
             all_characters = resp.json()
             filtered_characters = all_characters
-            page.remove(loading_container)
+            loading_container.visible = False
             pagination_row.visible = True
             
             # Trigger resize once to layout columns
@@ -490,4 +490,4 @@ def main(page: ft.Page):
         page.update()
 
 if __name__ == "__main__":
-    ft.run(main)
+    ft.run(main, assets_dir="assets")
