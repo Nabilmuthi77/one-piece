@@ -248,6 +248,36 @@ def main(page: ft.Page):
 
     fs_dlg_image = ft.Image(src="", fit=ft.BoxFit.CONTAIN, border_radius=12)
     fs_image_container = ft.Container(content=fs_dlg_image, padding=0, border_radius=24, clip_behavior=ft.ClipBehavior.ANTI_ALIAS)
+
+    fs_name_text = ft.Text(
+        "",
+        size=18,
+        weight=ft.FontWeight.BOLD,
+        color=ft.Colors.WHITE,
+        max_lines=1,
+        overflow=ft.TextOverflow.ELLIPSIS
+    )
+
+    pill_badge = ft.Container(
+        content=fs_name_text,
+        bgcolor=ft.Colors.BLUE_500,
+        padding=ft.Padding(20, 8, 20, 8),
+        border_radius=20,
+    )
+
+    fs_image_stack = ft.Stack(
+        controls=[
+            fs_image_container,
+            ft.Container(
+                content=pill_badge,
+                alignment=ft.Alignment(0, 1),
+                bottom=0, left=0, right=0,
+                offset=ft.Offset(0, 0.35)
+            )
+        ],
+        clip_behavior=ft.ClipBehavior.NONE
+    )
+
     lock_btn = ft.IconButton(
         icon=ft.Icons.LOCK_OPEN_ROUNDED,
         on_click=toggle_lock,
@@ -263,7 +293,7 @@ def main(page: ft.Page):
     fs_overlay = ft.Container(
         content=ft.Stack([
             ft.Container(
-                content=fs_image_container,
+                content=fs_image_stack,
                 alignment=ft.Alignment.CENTER,
                 expand=True,
                 top=0, bottom=0, left=0, right=0
@@ -286,6 +316,7 @@ def main(page: ft.Page):
         import asyncio
         await asyncio.sleep(0.1)
         fs_dlg_image.src = img_src
+        fs_name_text.value = name
         is_locked = True
         if wakelock:
             try:
@@ -322,10 +353,9 @@ def main(page: ft.Page):
         nonlocal current_char
         current_char = char
 
-        search_input.disabled = True
-        search_input.update()
-        search_input.disabled = False
-        search_input.update()
+        async def unfocus_hack():
+            await theme_btn.focus()
+        page.run_task(unfocus_hack)
 
         def close_this(e):
             dlg.open = False
