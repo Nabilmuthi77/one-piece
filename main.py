@@ -194,9 +194,27 @@ def main(page: ft.Page):
             except:
                 pass
         page.window.full_screen = False
-        page.on_view_pop = None
-        fs_overlay.visible = False
+        
+        # Pop the fullscreen view if it's currently on top
+        if len(page.views) > 1 and page.views[-1].route == "/fullscreen":
+            page.views.pop()
+        
         page.update()
+
+    def on_view_pop(e):
+        if is_locked:
+            # Prevent back button when locked
+            pass
+        else:
+            if len(page.views) > 1:
+                top_route = page.views[-1].route
+                if top_route == "/fullscreen":
+                    page.run_task(close_fs, None)
+                else:
+                    page.views.pop()
+                    page.update()
+
+    page.on_view_pop = on_view_pop
 
     def on_lifecycle(e):
         if e.data == ft.AppLifecycleState.RESUME.name and is_locked:
@@ -299,7 +317,8 @@ def main(page: ft.Page):
     async def open_fs_locked(img_src, name):
         nonlocal is_locked
         try:
-            page.pop_dialog()
+            dlg.open = False
+            page.update()
         except:
             pass
         fs_dlg_image.src = img_src
@@ -326,14 +345,19 @@ def main(page: ft.Page):
         fs_image_container.border = ft.Border.all(12, ft.Colors.BLUE_500)
         page.window.full_screen = True
         
-        def prevent_back(e):
-            pass
-        page.on_view_pop = prevent_back
         fs_overlay.visible = True
+        fs_view = ft.View(
+            route="/fullscreen",
+            controls=[fs_overlay],
+            padding=0,
+            bgcolor=ft.Colors.BLACK
+        )
+        page.views.append(fs_view)
         page.update()
 
     def close_modal(e):
-        page.pop_dialog()
+        dlg.open = False
+        page.update()
 
     def open_modal(char):
         img_src = BASE_IMG_URL + char.get('image', '') if char.get('image') else 'https://via.placeholder.com/400x500?text=No+Image'
@@ -548,7 +572,6 @@ def main(page: ft.Page):
     main_stack = ft.Stack([
         root_scroll_col,
         footer_fixed,
-        fs_overlay
     ], expand=True)
 
     page.add(main_stack)
