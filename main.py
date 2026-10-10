@@ -23,7 +23,6 @@ def main(page: ft.Page):
     wakelock = None
     if page.platform in [ft.PagePlatform.ANDROID, ft.PagePlatform.IOS]:
         wakelock = ft.Wakelock()
-        page.overlay.append(wakelock)
     
     page.title = "One Piece"
     page.theme_mode = ft.ThemeMode.DARK
