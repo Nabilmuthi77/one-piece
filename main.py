@@ -1,6 +1,8 @@
 import flet as ft
 import requests
 import math
+import re
+from collections import Counter
 
 API_URL = 'https://oparchive.com/data/characters.json'
 BASE_IMG_URL = 'https://oparchive.com'
@@ -18,6 +20,58 @@ LIGHT_TEXT_MUTED = "#64748b"
 
 ACCENT = "#0ea5e9"
 WHATSAPP = "#25D366"
+
+def get_story_arc(chapter_str):
+    if not chapter_str:
+        return 'Unknown'
+    match = re.search(r'Chapter\s+(\d+)', chapter_str)
+    if not match:
+        return 'SBS & Extras'
+    ch = int(match.group(1))
+    if ch >= 1126: return 'Elbaph'
+    if ch >= 1058: return 'Egghead'
+    if ch >= 909: return 'Wano Country'
+    if ch >= 903: return 'Levely'
+    if ch >= 825: return 'Whole Cake Island'
+    if ch >= 802: return 'Zou'
+    if ch >= 700: return 'Dressrosa'
+    if ch >= 654: return 'Punk Hazard'
+    if ch >= 603: return 'Fish-Man Island'
+    if ch >= 598: return 'Return to Sabaody'
+    if ch >= 581: return 'Post-War'
+    if ch >= 550: return 'Marineford'
+    if ch >= 525: return 'Impel Down'
+    if ch >= 514: return 'Amazon Lily'
+    if ch >= 490: return 'Sabaody Archipelago'
+    if ch >= 442: return 'Thriller Bark'
+    if ch >= 431: return 'Post-Enies Lobby'
+    if ch >= 375: return 'Enies Lobby'
+    if ch >= 322: return 'Water 7'
+    if ch >= 303: return 'Long Ring Long Land'
+    if ch >= 237: return 'Skypiea'
+    if ch >= 218: return 'Jaya'
+    if ch >= 155: return 'Arabasta'
+    if ch >= 130: return 'Drum Island'
+    if ch >= 115: return 'Little Garden'
+    if ch >= 106: return 'Whisky Peak'
+    if ch >= 101: return 'Reverse Mountain'
+    if ch >= 96: return 'Loguetown'
+    if ch >= 69: return 'Arlong Park'
+    if ch >= 42: return 'Baratie'
+    if ch >= 22: return 'Syrup Village'
+    if ch >= 8: return 'Orange Town'
+    if ch >= 1: return 'Romance Dawn'
+    return 'SBS & Extras'
+
+ARC_ORDER = [
+    "Romance Dawn", "Orange Town", "Syrup Village", "Baratie", "Arlong Park",
+    "Loguetown", "Reverse Mountain", "Whisky Peak", "Little Garden", "Drum Island",
+    "Arabasta", "Jaya", "Skypiea", "Long Ring Long Land", "Water 7",
+    "Enies Lobby", "Post-Enies Lobby", "Thriller Bark", "Sabaody Archipelago",
+    "Amazon Lily", "Impel Down", "Marineford", "Post-War", "Return to Sabaody",
+    "Fish-Man Island", "Punk Hazard", "Dressrosa", "Zou", "Whole Cake Island",
+    "Levely", "Wano Country", "Egghead", "Elbaph", "SBS & Extras"
+]
 
 def main(page: ft.Page):
     wakelock = None
@@ -46,6 +100,12 @@ def main(page: ft.Page):
     current_page = 1
     items_per_page = 30
     current_char = None
+    arc_menu_card = None
+    arc_search_input = None
+    fab_inner_center = None
+    arc_fab_wrapper = None
+    clamp_button_pos = None
+    position_arc_menu = None
 
     def get_card_bg(): return LIGHT_CARD if page.theme_mode == ft.ThemeMode.LIGHT else DARK_CARD
     def get_text_main(): return LIGHT_TEXT_MAIN if page.theme_mode == ft.ThemeMode.LIGHT else DARK_TEXT_MAIN
@@ -71,6 +131,12 @@ def main(page: ft.Page):
         page.bgcolor = LIGHT_BG if page.theme_mode == ft.ThemeMode.LIGHT else DARK_BG
         search_input.bgcolor = get_card_bg()
         search_input.color = get_text_main()
+        if arc_menu_card:
+            arc_menu_card.bgcolor = get_card_bg()
+            arc_menu_card.border = get_modern_border()
+            arc_search_input.bgcolor = DARK_BG if page.theme_mode == ft.ThemeMode.DARK else LIGHT_BG
+            arc_search_input.color = get_text_main()
+            build_arc_list_items()
         render_page()
         page.update()
 
@@ -115,6 +181,12 @@ def main(page: ft.Page):
         padding=20
     )
 
+    arc_fab_wrapper = None
+    arc_menu_card = None
+    arc_menu_open = False
+    btn_left = 300.0
+    btn_top = 600.0
+
     def on_page_resize(e):
         # Adjust masonry columns like the CSS media queries
         cols = 2
@@ -129,8 +201,13 @@ def main(page: ft.Page):
             grid.content.controls = masonry_columns
             render_page()
 
-        if page.height:
-            pass # we no longer need min_height hack
+        if arc_fab_wrapper and clamp_button_pos is not None:
+            clamp_button_pos()
+            arc_fab_wrapper.left = btn_left
+            arc_fab_wrapper.top = btn_top
+        if arc_menu_card and arc_menu_open and position_arc_menu is not None:
+            position_arc_menu()
+
         page.update()
 
     page.on_resize = on_page_resize
@@ -156,12 +233,25 @@ def main(page: ft.Page):
     pagination_row = ft.Row([prev_btn, page_info, next_btn], alignment=ft.MainAxisAlignment.CENTER, visible=False)
     pagination_container = ft.Container(content=pagination_row, padding=ft.Padding(0, 20, 0, 40))
 
-    def do_search():
+    selected_arc = None
+    arc_counts = {}
+
+    def apply_filters():
         nonlocal current_page, filtered_characters
-        query = search_input.value.lower()
-        filtered_characters = [c for c in all_characters if query in c.get('name', '').lower()]
+        query = (search_input.value or "").strip().lower()
+        if not query and not selected_arc:
+            filtered_characters = all_characters
+        else:
+            filtered_characters = [
+                c for c in all_characters
+                if (not query or query in c.get('name', '').lower())
+                and (not selected_arc or get_story_arc(c.get('first_appearance_arc')) == selected_arc)
+            ]
         current_page = 1
         render_page()
+
+    def do_search():
+        apply_filters()
 
     def format_bounty(bounty):
         if not bounty: return 'Unknown'
@@ -313,6 +403,8 @@ def main(page: ft.Page):
 
     async def open_fs_locked(img_src, name):
         nonlocal is_locked
+        if arc_menu_open:
+            close_arc_menu()
         page.pop_dialog()
         import asyncio
         await asyncio.sleep(0.1)
@@ -578,9 +670,466 @@ def main(page: ft.Page):
         footer_inline
     ], spacing=0, scroll=ft.ScrollMode.AUTO, expand=True)
 
+    # ==========================================
+    # ARC FILTER FLOATING BUTTON & POPUP MENU
+    # (Draggable & dynamically positioned, replicated from mobile-sidebar.js & sidebar.blade.php)
+    # ==========================================
+    BUTTON_SIZE = 42
+    VIEWPORT_MARGIN = 16
+    MENU_GAP = 12
+
+    arc_menu_open = False
+    is_dragging = False
+    drag_distance = 0.0
+    last_toggle_time = 0.0
+
+    # Initial position: bottom-right of viewport
+    init_pw = float(page.width if page.width else 400)
+    init_ph = float(page.height if page.height else 800)
+    btn_left = max(float(VIEWPORT_MARGIN), init_pw - BUTTON_SIZE - float(VIEWPORT_MARGIN))
+    btn_top = max(float(VIEWPORT_MARGIN), init_ph - BUTTON_SIZE - 28.0)
+
+    start_pointer_x = 0.0
+    start_pointer_y = 0.0
+    start_btn_left = btn_left
+    start_btn_top = btn_top
+
+    def clamp_button_pos(l=None, t=None):
+        nonlocal btn_left, btn_top
+        curr_pw = float(page.width if page.width else 400)
+        curr_ph = float(page.height if page.height else 800)
+        max_left = max(float(VIEWPORT_MARGIN), curr_pw - BUTTON_SIZE - float(VIEWPORT_MARGIN))
+        max_top = max(float(VIEWPORT_MARGIN), curr_ph - BUTTON_SIZE - float(VIEWPORT_MARGIN))
+        target_l = btn_left if l is None else l
+        target_t = btn_top if t is None else t
+        btn_left = max(float(VIEWPORT_MARGIN), min(float(target_l), max_left))
+        btn_top = max(float(VIEWPORT_MARGIN), min(float(target_t), max_top))
+        return btn_left, btn_top
+
+    # Spinner 1: Dual-arc rotating swirl loader (continuous animated WebP in ACCENT blue, 40 FPS)
+    fab_spinner_normal = ft.Image(
+        src="usc_spinner.webp",
+        width=22,
+        height=22,
+        fit=ft.BoxFit.CONTAIN
+    )
+
+    # Spinner 2: Active 3x3 dot matrix sliding puzzle (continuous animated WebP in ACCENT blue, 30 FPS)
+    fab_spinner_active = ft.Image(
+        src="usc_cog.webp",
+        width=22,
+        height=22,
+        fit=ft.BoxFit.CONTAIN
+    )
+
+    # Inner Center: 28x28 white disc (bg-white/90 with soft drop shadow)
+    fab_inner_center = ft.Container(
+        content=fab_spinner_normal,
+        width=28,
+        height=28,
+        border_radius=14,
+        bgcolor=ft.Colors.with_opacity(0.92, ft.Colors.WHITE),
+        alignment=ft.Alignment.CENTER,
+        shadow=ft.BoxShadow(
+            spread_radius=0,
+            blur_radius=8,
+            color=ft.Colors.with_opacity(0.10, "#0f172a"),
+            offset=ft.Offset(0, 1.5)
+        )
+    )
+
+    # Outer Button: 42x42 circular container with ACCENT sky gradient,
+    # ring-1 ring-white/70 border, and soft sky glow shadow
+    arc_fab_container = ft.Container(
+        content=fab_inner_center,
+        width=42,
+        height=42,
+        border_radius=21,
+        gradient=ft.LinearGradient(
+            begin=ft.Alignment.TOP_LEFT,
+            end=ft.Alignment.BOTTOM_RIGHT,
+            colors=[
+                ft.Colors.with_opacity(0.25, ACCENT),
+                ft.Colors.with_opacity(0.25, "#38bdf8")
+            ]
+        ),
+        border=ft.Border.all(1.2, ft.Colors.with_opacity(0.70, ft.Colors.WHITE)),
+        shadow=ft.BoxShadow(
+            spread_radius=0,
+            blur_radius=20,
+            color=ft.Colors.with_opacity(0.20, ACCENT),
+            offset=ft.Offset(0, 4)
+        ),
+        alignment=ft.Alignment.CENTER,
+        tooltip="Filter Arc (Story Arcs)"
+    )
+
+    def set_normal_state():
+        arc_fab_container.gradient = ft.LinearGradient(
+            begin=ft.Alignment.TOP_LEFT,
+            end=ft.Alignment.BOTTOM_RIGHT,
+            colors=[
+                ft.Colors.with_opacity(0.25, ACCENT),
+                ft.Colors.with_opacity(0.25, "#38bdf8")
+            ]
+        )
+        arc_fab_container.shadow = ft.BoxShadow(
+            spread_radius=0,
+            blur_radius=20,
+            color=ft.Colors.with_opacity(0.20, ACCENT),
+            offset=ft.Offset(0, 4)
+        )
+        fab_inner_center.content = fab_spinner_normal
+        if arc_fab_wrapper and arc_fab_wrapper.page:
+            arc_fab_container.update()
+
+    def set_active_state():
+        arc_fab_container.gradient = ft.LinearGradient(
+            begin=ft.Alignment.TOP_LEFT,
+            end=ft.Alignment.BOTTOM_RIGHT,
+            colors=[
+                ft.Colors.with_opacity(0.45, ACCENT),
+                ft.Colors.with_opacity(0.45, "#38bdf8")
+            ]
+        )
+        arc_fab_container.shadow = ft.BoxShadow(
+            spread_radius=0,
+            blur_radius=25,
+            color=ft.Colors.with_opacity(0.35, ACCENT),
+            offset=ft.Offset(0, 4)
+        )
+        fab_inner_center.content = fab_spinner_active
+        if arc_fab_wrapper and arc_fab_wrapper.page:
+            arc_fab_container.update()
+
+    def position_arc_menu():
+        if not arc_menu_open:
+            return
+
+        curr_pw = float(page.width if page.width else 1200)
+        curr_ph = float(page.height if page.height else 800)
+
+        # Dynamic menu dimensions based on viewport
+        menu_width = min(320.0, max(260.0, curr_pw - (VIEWPORT_MARGIN * 2)))
+        menu_height = min(460.0, max(300.0, curr_ph - 100))
+        arc_menu_card.width = menu_width
+        arc_menu_card.height = menu_height
+
+        btn_r = btn_left + BUTTON_SIZE
+        btn_b = btn_top + BUTTON_SIZE
+        btn_cx = btn_left + BUTTON_SIZE / 2.0
+        btn_cy = btn_top + BUTTON_SIZE / 2.0
+
+        candidates = [
+            # Candidate 1: Right of button
+            {"left": btn_r + MENU_GAP, "top": btn_cy - menu_height / 2.0},
+            # Candidate 2: Left of button
+            {"left": btn_left - menu_width - MENU_GAP, "top": btn_cy - menu_height / 2.0},
+            # Candidate 3: Below button
+            {"left": btn_cx - menu_width / 2.0, "top": btn_b + MENU_GAP},
+            # Candidate 4: Above button
+            {"left": btn_cx - menu_width / 2.0, "top": btn_top - menu_height - MENU_GAP}
+        ]
+
+        def calculate_overflow(pos):
+            overflow = 0.0
+            if pos["left"] < VIEWPORT_MARGIN:
+                overflow += VIEWPORT_MARGIN - pos["left"]
+            if pos["left"] + menu_width > curr_pw - VIEWPORT_MARGIN:
+                overflow += (pos["left"] + menu_width) - (curr_pw - VIEWPORT_MARGIN)
+            if pos["top"] < VIEWPORT_MARGIN:
+                overflow += VIEWPORT_MARGIN - pos["top"]
+            if pos["top"] + menu_height > curr_ph - VIEWPORT_MARGIN:
+                overflow += (pos["top"] + menu_height) - (curr_ph - VIEWPORT_MARGIN)
+            return overflow
+
+        best_pos = min(candidates, key=calculate_overflow)
+
+        final_left = max(float(VIEWPORT_MARGIN), min(float(best_pos["left"]), curr_pw - menu_width - float(VIEWPORT_MARGIN)))
+        final_top = max(float(VIEWPORT_MARGIN), min(float(best_pos["top"]), curr_ph - menu_height - float(VIEWPORT_MARGIN)))
+
+        arc_menu_card.left = final_left
+        arc_menu_card.top = final_top
+        arc_menu_card.right = None
+        arc_menu_card.bottom = None
+
+    def open_arc_menu():
+        nonlocal arc_menu_open
+        arc_menu_open = True
+        arc_dim_dismiss.visible = True
+        arc_menu_card.visible = True
+        set_active_state()
+        position_arc_menu()
+        page.update()
+
+    def close_arc_menu():
+        nonlocal arc_menu_open
+        arc_menu_open = False
+        arc_dim_dismiss.visible = False
+        arc_menu_card.visible = False
+        set_normal_state()
+        page.update()
+
+    def toggle_arc_menu():
+        if arc_menu_open:
+            close_arc_menu()
+        else:
+            open_arc_menu()
+
+    is_drag_active = False
+    drag_dist = 0.0
+    last_toggle_time = 0.0
+
+    def trigger_toggle(e=None):
+        nonlocal last_toggle_time
+        import time
+        now = time.time()
+        if now - last_toggle_time < 0.20:
+            return
+        last_toggle_time = now
+        toggle_arc_menu()
+
+    def get_pos_coord(val):
+        if val is None:
+            return None
+        if hasattr(val, 'x') and hasattr(val, 'y'):
+            return float(val.x), float(val.y)
+        if isinstance(val, (list, tuple)) and len(val) >= 2:
+            return float(val[0]), float(val[1])
+        return None
+
+    def on_pan_start(e: ft.DragStartEvent):
+        nonlocal is_drag_active, drag_dist, start_btn_left, start_btn_top, start_pointer_x, start_pointer_y
+        is_drag_active = False
+        drag_dist = 0.0
+        start_btn_left = btn_left
+        start_btn_top = btn_top
+        coords = get_pos_coord(getattr(e, 'global_position', None)) or get_pos_coord(getattr(e, 'local_position', None))
+        if coords:
+            start_pointer_x, start_pointer_y = coords
+        else:
+            start_pointer_x, start_pointer_y = 0.0, 0.0
+
+    def on_pan_update(e: ft.DragUpdateEvent):
+        nonlocal btn_left, btn_top, is_drag_active, drag_dist
+        curr_coords = get_pos_coord(getattr(e, 'global_position', None))
+        if curr_coords and (start_pointer_x != 0.0 or start_pointer_y != 0.0):
+            offset_x = curr_coords[0] - start_pointer_x
+            offset_y = curr_coords[1] - start_pointer_y
+        else:
+            delta = get_pos_coord(getattr(e, 'global_delta', None)) or get_pos_coord(getattr(e, 'local_delta', None))
+            if delta:
+                offset_x, offset_y = delta[0], delta[1]
+            else:
+                offset_x, offset_y = 0.0, 0.0
+
+        drag_dist = (offset_x ** 2 + offset_y ** 2) ** 0.5
+
+        if drag_dist > 4.0:
+            if not is_drag_active:
+                is_drag_active = True
+                if arc_menu_open:
+                    close_arc_menu()
+
+        if is_drag_active:
+            clamp_button_pos(start_btn_left + offset_x, start_btn_top + offset_y)
+            arc_fab_wrapper.left = btn_left
+            arc_fab_wrapper.top = btn_top
+            if arc_fab_wrapper.page:
+                arc_fab_wrapper.update()
+
+    def on_pan_end(e: ft.DragEndEvent):
+        nonlocal is_drag_active
+        if not is_drag_active:
+            trigger_toggle()
+        is_drag_active = False
+
+    def on_tap(e):
+        if not is_drag_active:
+            trigger_toggle()
+
+    arc_fab_wrapper = ft.GestureDetector(
+        content=arc_fab_container,
+        left=btn_left,
+        top=btn_top,
+        drag_interval=10,
+        on_pan_start=on_pan_start,
+        on_pan_update=on_pan_update,
+        on_pan_end=on_pan_end,
+        on_tap=on_tap
+    )
+
+    arc_dim_dismiss = ft.Container(
+        top=0, bottom=0, left=0, right=0,
+        bgcolor=ft.Colors.TRANSPARENT,
+        visible=False,
+        on_click=lambda e: close_arc_menu()
+    )
+
+    active_arc_text = ft.Text(
+        "Semua Arc",
+        size=11,
+        weight=ft.FontWeight.W_600,
+        color=ACCENT
+    )
+
+    arc_search_input = ft.TextField(
+        hint_text="Cari arc (Wano, Alabasta...)",
+        prefix_icon=ft.Icons.SEARCH,
+        border=ft.OutlineInputBorder(border_radius=12, side=ft.BorderSide(color=ft.Colors.TRANSPARENT)),
+        content_padding=ft.Padding(10, 8, 10, 8),
+        text_size=12,
+        height=38,
+        bgcolor=DARK_BG if page.theme_mode == ft.ThemeMode.DARK else LIGHT_BG,
+        color=get_text_main(),
+        on_change=lambda e: build_arc_list_items()
+    )
+
+    arc_list_col = ft.Column(spacing=4, scroll=ft.ScrollMode.AUTO, expand=True)
+
+    def select_arc(arc_name):
+        nonlocal selected_arc
+        selected_arc = arc_name
+        active_arc_text.value = selected_arc if selected_arc else "Semua Arc"
+        build_arc_list_items()
+        apply_filters()
+        close_arc_menu()
+
+    def build_arc_list_items():
+        arc_list_col.controls.clear()
+        search_filter = (arc_search_input.value or "").strip().lower()
+
+        # Item 0: All Arcs
+        if not search_filter or "semua" in search_filter or "all" in search_filter:
+            is_all_selected = selected_arc is None
+            all_item = ft.Container(
+                content=ft.Row([
+                    ft.Container(
+                        content=ft.Icon(
+                            ft.Icons.PUBLIC_ROUNDED,
+                            size=16,
+                            color=ACCENT if is_all_selected else get_text_muted()
+                        ),
+                        width=32,
+                        height=32,
+                        border_radius=8,
+                        bgcolor=ft.Colors.with_opacity(0.15, ACCENT) if is_all_selected else (ft.Colors.with_opacity(0.06, ft.Colors.WHITE) if page.theme_mode == ft.ThemeMode.DARK else ft.Colors.BLACK_12),
+                        alignment=ft.Alignment.CENTER
+                    ),
+                    ft.Column([
+                        ft.Text("Semua Arc", size=13, weight=ft.FontWeight.BOLD if is_all_selected else ft.FontWeight.W_500, color=ACCENT if is_all_selected else get_text_main()),
+                        ft.Text(f"{len(all_characters)} karakter", size=10, color=get_text_muted())
+                    ], spacing=1, expand=True),
+                    ft.Icon(ft.Icons.CHECK_ROUNDED, color=ACCENT, size=16, visible=is_all_selected)
+                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN, vertical_alignment=ft.CrossAxisAlignment.CENTER),
+                bgcolor=ft.Colors.with_opacity(0.12, ACCENT) if is_all_selected else ft.Colors.TRANSPARENT,
+                border=ft.Border.all(1, ft.Colors.with_opacity(0.3, ACCENT) if is_all_selected else ft.Colors.TRANSPARENT),
+                border_radius=12,
+                padding=ft.Padding(10, 8, 10, 8),
+                on_click=lambda e: select_arc(None),
+                animate=ft.Animation(150, ft.AnimationCurve.EASE_OUT)
+            )
+            arc_list_col.controls.append(all_item)
+
+        for arc in ARC_ORDER:
+            if search_filter and search_filter not in arc.lower():
+                continue
+            count = arc_counts.get(arc, 0)
+            is_selected = selected_arc == arc
+            item = ft.Container(
+                content=ft.Row([
+                    ft.Container(
+                        content=ft.Icon(
+                            ft.Icons.AUTO_AWESOME_OUTLINED if not is_selected else ft.Icons.AUTO_AWESOME_ROUNDED,
+                            size=16,
+                            color=ACCENT if is_selected else get_text_muted()
+                        ),
+                        width=32,
+                        height=32,
+                        border_radius=8,
+                        bgcolor=ft.Colors.with_opacity(0.15, ACCENT) if is_selected else (ft.Colors.with_opacity(0.06, ft.Colors.WHITE) if page.theme_mode == ft.ThemeMode.DARK else ft.Colors.BLACK_12),
+                        alignment=ft.Alignment.CENTER
+                    ),
+                    ft.Column([
+                        ft.Text(arc, size=13, weight=ft.FontWeight.BOLD if is_selected else ft.FontWeight.W_500, color=ACCENT if is_selected else get_text_main()),
+                        ft.Text(f"{count} karakter", size=10, color=get_text_muted())
+                    ], spacing=1, expand=True),
+                    ft.Icon(ft.Icons.CHECK_ROUNDED, color=ACCENT, size=16, visible=is_selected)
+                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN, vertical_alignment=ft.CrossAxisAlignment.CENTER),
+                bgcolor=ft.Colors.with_opacity(0.12, ACCENT) if is_selected else ft.Colors.TRANSPARENT,
+                border=ft.Border.all(1, ft.Colors.with_opacity(0.3, ACCENT) if is_selected else ft.Colors.TRANSPARENT),
+                border_radius=12,
+                padding=ft.Padding(10, 8, 10, 8),
+                on_click=lambda e, a=arc: select_arc(a),
+                animate=ft.Animation(150, ft.AnimationCurve.EASE_OUT)
+            )
+            arc_list_col.controls.append(item)
+
+        if arc_list_col.page:
+            arc_list_col.update()
+
+    arc_menu_card = ft.Container(
+        content=ft.Column([
+            ft.Container(
+                content=ft.Row([
+                    ft.Column([
+                        ft.Text("FILTER KARAKTER", size=10, weight=ft.FontWeight.BOLD, color=get_text_muted()),
+                        ft.Row([
+                            ft.Text("Story Arcs", size=16, weight=ft.FontWeight.BOLD, color=get_text_main()),
+                            ft.Container(
+                                content=active_arc_text,
+                                bgcolor=ft.Colors.with_opacity(0.12, ACCENT),
+                                padding=ft.Padding(8, 2, 8, 2),
+                                border_radius=10,
+                                border=ft.Border.all(1, ft.Colors.with_opacity(0.3, ACCENT))
+                            )
+                        ], spacing=8, alignment=ft.CrossAxisAlignment.CENTER)
+                    ], spacing=2, expand=True),
+                    ft.IconButton(
+                        icon=ft.Icons.CLOSE,
+                        icon_size=18,
+                        icon_color=get_text_muted(),
+                        on_click=lambda e: close_arc_menu()
+                    )
+                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+                padding=ft.Padding(16, 14, 16, 8)
+            ),
+            ft.Container(
+                content=arc_search_input,
+                padding=ft.Padding(14, 0, 14, 8)
+            ),
+            ft.Container(
+                height=1,
+                bgcolor=ft.Colors.with_opacity(0.1, DARK_TEXT_MUTED if page.theme_mode == ft.ThemeMode.DARK else LIGHT_TEXT_MUTED)
+            ),
+            ft.Container(
+                content=arc_list_col,
+                expand=True,
+                padding=ft.Padding(10, 6, 10, 10)
+            )
+        ], spacing=0),
+        width=320,
+        height=450,
+        border_radius=22,
+        bgcolor=get_card_bg(),
+        border=ft.Border.all(1, ft.Colors.with_opacity(0.3, ACCENT) if page.theme_mode == ft.ThemeMode.DARK else ft.Colors.with_opacity(0.4, ACCENT)),
+        shadow=ft.BoxShadow(
+            spread_radius=0,
+            blur_radius=40,
+            color=ft.Colors.with_opacity(0.25, "#0f172a"),
+            offset=ft.Offset(0, 12)
+        ),
+        left=btn_left,
+        top=btn_top,
+        visible=False
+    )
+
     main_stack = ft.Stack([
         root_scroll_col,
         footer_fixed,
+        arc_dim_dismiss,
+        arc_menu_card,
+        arc_fab_wrapper,
     ], expand=True)
 
     page.add(main_stack)
@@ -592,6 +1141,9 @@ def main(page: ft.Page):
             filtered_characters = all_characters
             loading_container.visible = False
             pagination_row.visible = True
+
+            arc_counts = Counter(get_story_arc(c.get('first_appearance_arc')) for c in all_characters)
+            build_arc_list_items()
 
             # Trigger resize once to layout columns
             on_page_resize(None)
