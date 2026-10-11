@@ -177,6 +177,7 @@ def main(page: ft.Page):
             elif 'observation' in hl: res.append('Kenbunshoku')
             elif 'conqueror' in hl: res.append('Haoshoku')
             else: res.append(h)
+        return ', '.join(res) if res else 'No Haki or Unknown'
 
 
     async def close_fs(e):
