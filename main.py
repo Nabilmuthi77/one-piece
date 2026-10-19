@@ -503,7 +503,7 @@ def main(page: ft.Page):
                 top=0, right=0, left=0
             )
         ], expand=True),
-        bgcolor=ft.Colors.BLACK,
+        bgcolor=ft.Colors.WHITE,
         expand=True,
         visible=False
     )
@@ -543,7 +543,7 @@ def main(page: ft.Page):
             route="/fullscreen",
             controls=[fs_overlay],
             padding=0,
-            bgcolor=ft.Colors.BLACK,
+            bgcolor=ft.Colors.WHITE,
             can_pop=False
         )
         page.views.append(fs_view)
@@ -981,7 +981,7 @@ def main(page: ft.Page):
             offset=ft.Offset(0, 4)
         ),
         alignment=ft.Alignment.CENTER,
-        tooltip="Filter Arc (Story Arcs)"
+        tooltip="Filter Characters"
     )
 
     def set_normal_state():
@@ -1209,7 +1209,7 @@ def main(page: ft.Page):
             padding=ft.Padding(10, 0, 8, 0),
             height=36,
             alignment=ft.Alignment.CENTER,
-            tooltip=f"Hapus {text}",
+            tooltip=f"Delete {text}",
             on_click=on_clear_fn
         )
 
@@ -1233,7 +1233,7 @@ def main(page: ft.Page):
         )
 
     active_filters_row = ft.Row(
-        controls=[create_default_badge("Semua Arcs")],
+        controls=[create_default_badge("All Characters")],
         spacing=6,
         scroll=ft.ScrollMode.AUTO,
         alignment=ft.MainAxisAlignment.START,
@@ -1293,30 +1293,30 @@ def main(page: ft.Page):
             if selected_arc:
                 active_filters_row.controls.append(create_filter_badge(selected_arc, clear_arc_filter))
             else:
-                active_filters_row.controls.append(create_default_badge("Semua Arcs", lambda e: clear_arc_filter(e)))
+                active_filters_row.controls.append(create_default_badge("All Characters", lambda e: clear_arc_filter(e)))
         elif selected_category == "devil_fruit":
             if selected_df:
-                df_name = "Tanpa Buah" if selected_df == "None" else selected_df
+                df_name = "No Fruit" if selected_df == "None" else selected_df
                 active_filters_row.controls.append(create_filter_badge(df_name, clear_df_filter))
             else:
-                active_filters_row.controls.append(create_default_badge("Semua Devil Fruit", lambda e: clear_df_filter(e)))
+                active_filters_row.controls.append(create_default_badge("All Characters", lambda e: clear_df_filter(e)))
         elif selected_category == "race":
             if selected_race:
                 active_filters_row.controls.append(create_filter_badge(selected_race, clear_race_filter))
             else:
-                active_filters_row.controls.append(create_default_badge("Semua Race", lambda e: clear_race_filter(e)))
+                active_filters_row.controls.append(create_default_badge("All Characters", lambda e: clear_race_filter(e)))
         elif selected_category == "game_mode":
             if selected_mode:
                 active_filters_row.controls.append(create_filter_badge(selected_mode, clear_mode_filter))
             else:
-                active_filters_row.controls.append(create_default_badge("Semua Game Mode", lambda e: clear_mode_filter(e)))
+                active_filters_row.controls.append(create_default_badge("All Characters", lambda e: clear_mode_filter(e)))
 
         # Tampilkan juga badge filter aktif dari kategori lain (jika sudah ada filter yang dipilih)
         if selected_category != "arcs" and selected_arc:
             active_filters_row.controls.append(create_filter_badge(selected_arc, clear_arc_filter))
 
         if selected_category != "devil_fruit" and selected_df:
-            df_name = "Tanpa Buah" if selected_df == "None" else selected_df
+            df_name = "No Fruit" if selected_df == "None" else selected_df
             active_filters_row.controls.append(create_filter_badge(df_name, clear_df_filter))
 
         if selected_category != "race" and selected_race:
@@ -1359,22 +1359,26 @@ def main(page: ft.Page):
     def on_category_select(cat_key):
         nonlocal selected_category
         selected_category = cat_key
-        category_label_text.value = category_labels.get(cat_key, "Kategori")
+        category_label_text.value = category_labels.get(cat_key, "Category")
         arc_search_input.value = ""
         if selected_category == "arcs":
-            arc_search_input.hint_text = "Cari arc (Wano, Alabasta...)"
+            arc_search_input.hint_text = "Search arcs (Wano, Alabasta...)"
         elif selected_category == "devil_fruit":
-            arc_search_input.hint_text = "Cari buah (Zoan, Logia, Mera...)"
+            arc_search_input.hint_text = "Search fruit (Zoan, Logia, Mera...)"
         elif selected_category == "race":
-            arc_search_input.hint_text = "Cari ras (Human, Fish-man, Mink...)"
+            arc_search_input.hint_text = "Search race (Human, Fish-man, Mink...)"
         elif selected_category == "game_mode":
-            arc_search_input.hint_text = "Cari mode (Easy, Medium, Hard...)"
+            arc_search_input.hint_text = "Search mode (Easy, Medium, Hard...)"
         update_active_filter_display()
         build_filter_list_items()
         page.update()
 
     category_dropdown = ft.PopupMenuButton(
         content=category_container,
+        menu_position=ft.PopupMenuPosition.UNDER,
+        shape=ft.RoundedRectangleBorder(radius=12),
+        elevation=6,
+        shadow_color=ft.Colors.BLACK_26,
         items=[
             ft.PopupMenuItem(
                 content=ft.Text("Story Arcs", size=12, weight=ft.FontWeight.W_500),
@@ -1393,11 +1397,11 @@ def main(page: ft.Page):
                 on_click=lambda e: on_category_select("game_mode")
             ),
         ],
-        tooltip="Pilih Kategori",
+        tooltip="Select Category",
     )
 
     arc_search_input = ft.TextField(
-        hint_text="Cari arc (Wano, Alabasta...)",
+        hint_text="Search arcs (Wano, Alabasta...)",
         prefix_icon=ft.Icons.SEARCH,
         border=ft.OutlineInputBorder(border_radius=12, side=ft.BorderSide(color=ft.Colors.TRANSPARENT)),
         content_padding=ft.Padding(10, 8, 10, 8),
@@ -1462,7 +1466,11 @@ def main(page: ft.Page):
                 ),
                 ft.Column([
                     ft.Row(title_controls, spacing=6, vertical_alignment=ft.CrossAxisAlignment.CENTER),
-                    ft.Text(f"{count} karakter", size=10, color=get_text_muted())
+                    ft.Text(
+                        f"Total {count} characters (No filter)" if title in ("All Characters", "All Character") else (f"{count} character" if count == 1 else f"{count} characters"),
+                        size=10,
+                        color=get_text_muted()
+                    )
                 ], spacing=2, expand=True),
                 ft.Icon(ft.Icons.CHECK_ROUNDED, color=ACCENT, size=16, visible=is_selected)
             ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN, vertical_alignment=ft.CrossAxisAlignment.CENTER),
@@ -1488,16 +1496,16 @@ def main(page: ft.Page):
             ]
             dynamic_arc_counts = Counter(get_story_arc(c.get('first_appearance_arc')) for c in base_pool)
 
-            # Item 0: All Arcs
-            if not search_filter or "semua" in search_filter or "all" in search_filter:
+            # Item 0: All Characters
+            if not search_filter or any(kw in search_filter for kw in ["all", "character", "semua"]):
                 is_all_selected = selected_arc is None
                 arc_list_col.controls.append(
                     make_filter_item(
-                        "Semua Arcs",
+                        "All Characters",
                         len(base_pool),
                         is_all_selected,
                         lambda e: select_filter("arcs", None),
-                        icon=ft.Icons.PUBLIC_ROUNDED
+                        icon=ft.Icons.PEOPLE_ALT_ROUNDED
                     )
                 )
 
@@ -1525,16 +1533,16 @@ def main(page: ft.Page):
                 and matches_game_mode_filter(c, selected_mode)
             ]
 
-            # Item 0: All Fruits
-            if not search_filter or "semua" in search_filter or "all" in search_filter:
+            # Item 0: All Characters
+            if not search_filter or any(kw in search_filter for kw in ["all", "character", "semua"]):
                 is_all_selected = selected_df is None
                 arc_list_col.controls.append(
                     make_filter_item(
-                        "Semua Devil Fruit",
+                        "All Characters",
                         len(base_pool),
                         is_all_selected,
                         lambda e: select_filter("devil_fruit", None),
-                        icon=ft.Icons.PUBLIC_ROUNDED
+                        icon=ft.Icons.PEOPLE_ALT_ROUNDED
                     )
                 )
 
@@ -1547,7 +1555,7 @@ def main(page: ft.Page):
             ]
 
             for key, count, icon in fruit_types:
-                title = "Tanpa Buah Iblis" if key == "None" else f"Tipe {key}"
+                title = "No Devil Fruit" if key == "None" else f"{key} Type"
                 if search_filter and (search_filter not in key.lower() and search_filter not in title.lower()):
                     continue
                 is_selected = selected_df == key
@@ -1581,7 +1589,7 @@ def main(page: ft.Page):
             if matching_fruits:
                 arc_list_col.controls.append(
                     ft.Container(
-                        content=ft.Text("BUAH SPESIFIK", size=10, weight=ft.FontWeight.BOLD, color=get_text_muted()),
+                        content=ft.Text("SPECIFIC FRUITS", size=10, weight=ft.FontWeight.BOLD, color=get_text_muted()),
                         padding=ft.Padding(6, 8, 6, 2)
                     )
                 )
@@ -1609,16 +1617,16 @@ def main(page: ft.Page):
             ]
             dynamic_race_counts = Counter((c.get('race') or 'Unknown').strip() for c in base_pool)
 
-            # Item 0: All Races
-            if not search_filter or "semua" in search_filter or "all" in search_filter:
+            # Item 0: All Characters
+            if not search_filter or any(kw in search_filter for kw in ["all", "character", "semua"]):
                 is_all_selected = selected_race is None
                 arc_list_col.controls.append(
                     make_filter_item(
-                        "Semua Race",
+                        "All Characters",
                         len(base_pool),
                         is_all_selected,
                         lambda e: select_filter("race", None),
-                        icon=ft.Icons.PUBLIC_ROUNDED
+                        icon=ft.Icons.PEOPLE_ALT_ROUNDED
                     )
                 )
 
@@ -1651,16 +1659,16 @@ def main(page: ft.Page):
                 and (not selected_race or (c.get('race') or 'Unknown').strip() == selected_race)
             ]
 
-            # Item 0: All Game Modes
-            if not search_filter or "semua" in search_filter or "all" in search_filter or "mode" in search_filter:
+            # Item 0: All Characters
+            if not search_filter or any(kw in search_filter for kw in ["all", "character", "semua", "mode"]):
                 is_all_selected = selected_mode is None
                 arc_list_col.controls.append(
                     make_filter_item(
-                        "Semua Game Mode",
+                        "All Characters",
                         len(base_pool),
                         is_all_selected,
                         lambda e: select_filter("game_mode", None),
-                        icon=ft.Icons.PUBLIC_ROUNDED
+                        icon=ft.Icons.PEOPLE_ALT_ROUNDED
                     )
                 )
 
@@ -1693,7 +1701,7 @@ def main(page: ft.Page):
             ft.Container(
                 content=ft.Column([
                     ft.Row([
-                        ft.Text("FILTER KARAKTER", size=10, weight=ft.FontWeight.BOLD, color=get_text_muted()),
+                        ft.Text("CHARACTER FILTER", size=10, weight=ft.FontWeight.BOLD, color=get_text_muted()),
                         ft.Row([
                             ft.IconButton(
                                 icon=ft.Icons.RESTART_ALT_ROUNDED,
@@ -1706,7 +1714,7 @@ def main(page: ft.Page):
                                 icon=ft.Icons.CLOSE,
                                 icon_size=18,
                                 icon_color=get_text_muted(),
-                                tooltip="Tutup",
+                                tooltip="Close",
                                 on_click=lambda e: close_arc_menu()
                             )
                         ], spacing=4, alignment=ft.CrossAxisAlignment.CENTER)
