@@ -29,8 +29,16 @@ jobs:
       - name: Install requirements
         run: pip install -r requirements.txt
 
+      - name: Configure Gradle
+        run: |
+          mkdir -p ~/.gradle
+          echo "org.gradle.parallel=false" >> ~/.gradle/gradle.properties
+          echo "org.gradle.workers.max=1" >> ~/.gradle/gradle.properties
+
       - name: Build APK with Flet
-        run: yes | flet build apk --product "One Piece"
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.parallel=false -Dorg.gradle.workers.max=1"
+        run: flet build apk --product "One Piece" --arch arm64-v8a --yes -vv
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
