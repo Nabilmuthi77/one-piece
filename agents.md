@@ -38,12 +38,18 @@ Yang masih error :
 - (Belum ada dan jangan sampe ada)
 
 Yang ingin dibuat fitur baru :
-- (Belum ada)
+- Buat tampilan suggest di kanan story arc dengan masing - masing memiliki kotak chip terpisah dengan border dan background aksen sendiri.
+- Munculkan satu per satu suggest saat diklik.
+- kondisi awal : sudah ada kotak/border default (semua arc).
+- buatkan tombol hapus cepat contoh: [Baratie X] dan tombol hapus cepat ini hapus satu per satu suggest.
+- Tambah fitur clear di kiri closebar jangan terlalu deket atau terlalu jauh.
+- tombolnya berupa icon putaran reset.
+- dan fungsi tombol clear ini untuk clear suggest.
 
-Yang masih ingin diperbarui :
-- (Belum ada yang lain)
-- Fitur floating arc filter button disempurnakan:
-  1. Bulatan kuning (fab_badge) dihapus total sehingga tampilan tombol bersih, rapi, dan simetris di tengah.
-  2. Drag gesture floating ball diperbarui dengan anchored pointer coordinate tracking (posisi tombol terkunci 1:1 mengikuti kursor mouse tanpa jitter/drift/stutter).
-  3. Animasi spinner ke-1 (dual-arc swirl @ 40 FPS) dan puzzle ke-2 (3x3 dot matrix sliding @ 30 FPS) berjalan berputar terus menerus sangat halus (liquid smooth) dengan warna biru ACCENT (#0ea5e9). Posisi visual puzzle ke-2 telah digeser ke atas dan ke kiri sehingga simetris dan presisi tepat di tengah disc.
-  4. Klik/tap biasa langsung memunculkan dan menutup menu filter arc secara instan dan responsif.
+tambahan fitur baru
+- di bagian filter tambahkan kategori Game Mode yang berisi 3 game mode.
+- easy, medium, hard.
+- gw pengen mengelompkan sesuai entry journey bro jika si karakter muncul misal  di 6-40 kemunculan masuk ke easy, jika si karater muncul di 2-5 kemunculan masuk ke medium, jika si karakter muncul di 1 kemunculan masuk ke hard.
+
+perbaikan
+- bagian kategori sama persiskan ukurannya dengan suggest agar terlihat rapih.

@@ -5,158 +5,33 @@ import re
 from collections import Counter
 
 API_URL = 'https://oparchive.com/data/characters.json'
+DEVIL_FRUITS_API_URL = 'https://oparchive.com/data/devil_fruits.json'
 BASE_IMG_URL = 'https://oparchive.com'
 
 
 DEVIL_FRUIT_TYPES = {
-    # =========================
-    # PARAMECIA
-    # =========================
-    "Bara Bara no Mi": "Paramecia",
-    "Sube Sube no Mi": "Paramecia",
-    "Bomu Bomu no Mi": "Paramecia",
-    "Kiro Kiro no Mi": "Paramecia",
-    "Hana Hana no Mi": "Paramecia",
-    "Doru Doru no Mi": "Paramecia",
-    "Baku Baku no Mi": "Paramecia",
-    "Mane Mane no Mi": "Paramecia",
-    "Supa Supa no Mi": "Paramecia",
-    "Toge Toge no Mi": "Paramecia",
-    "Ori Ori no Mi": "Paramecia",
-    "Bane Bane no Mi": "Paramecia",
-    "Ito Ito no Mi": "Paramecia",
-    "Noro Noro no Mi": "Paramecia",
-    "Doa Doa no Mi": "Paramecia",
-    "Awa Awa no Mi": "Paramecia",
-    "Beri Beri no Mi": "Paramecia",
-    "Sabi Sabi no Mi": "Paramecia",
-    "Shari Shari no Mi": "Paramecia",
-    "Yomi Yomi no Mi": "Paramecia",
-    "Kage Kage no Mi": "Paramecia",
-    "Horo Horo no Mi": "Paramecia",
-    "Nikyu Nikyu no Mi": "Paramecia",
-    "Choki Choki no Mi": "Paramecia",
-    "Doku Doku no Mi": "Paramecia",
-    "Horu Horu no Mi": "Paramecia",
-    "Chiyu Chiyu no Mi": "Paramecia",
-    "Gura Gura no Mi": "Paramecia",
-    "Kira Kira no Mi": "Paramecia",
-    "Poke Poke no Mi": "Paramecia",
-    "Woshu Woshu no Mi": "Paramecia",
-    "Fuwa Fuwa no Mi": "Paramecia",
-    "Mato Mato no Mi": "Paramecia",
-    "Ope Ope no Mi": "Paramecia",
-    "Buki Buki no Mi": "Paramecia",
-    "Guru Guru no Mi": "Paramecia",
-    "Bisu Bisu no Mi": "Paramecia",
-    "Beta Beta no Mi": "Paramecia",
-    "Zushi Zushi no Mi": "Paramecia",
-    "Hobi Hobi no Mi": "Paramecia",
-    "Bari Bari no Mi": "Paramecia",
-    "Nui Nui no Mi": "Paramecia",
-    "Giro Giro no Mi": "Paramecia",
-    "Ato Ato no Mi": "Paramecia",
-    "Jake Jake no Mi": "Paramecia",
-    "Pamu Pamu no Mi": "Paramecia",
-    "Sui Sui no Mi": "Paramecia",
-    "Ton Ton no Mi": "Paramecia",
-    "Hira Hira no Mi": "Paramecia",
-    "Ishi Ishi no Mi": "Paramecia",
-    "Nagi Nagi no Mi": "Paramecia",
-    "Mochi Mochi no Mi": "Paramecia",
-    "Pero Pero no Mi": "Paramecia",
-    "Mira Mira no Mi": "Paramecia",
-    "Buku Buku no Mi": "Paramecia",
-    "Kuri Kuri no Mi": "Paramecia",
-    "Kuku Kuku no Mi": "Paramecia",
-    "Shibo Shibo no Mi": "Paramecia",
-    "Hoya Hoya no Mi": "Paramecia",
-    "Netsu Netsu no Mi": "Paramecia",
-    "Kobu Kobu no Mi": "Paramecia",
-    "Oshi Oshi no Mi": "Paramecia",
-    "Juku Juku no Mi": "Paramecia",
-    "Toshi Toshi no Mi": "Paramecia",
-    "Riki Riki no Mi": "Paramecia",
-    "Shima Shima no Mi": "Paramecia",
-    "Wapu Wapu no Mi": "Paramecia",
-    "Gunyo Gunyo no Mi": "Paramecia",
-    "Mero Mero no Mi": "Paramecia",
-    "Jiki Jiki no Mi": "Paramecia",
-    "Hana Hana no Mi": "Paramecia",
-    "Soru Soru no Mi": "Paramecia",
-    "Suke Suke no Mi": "Paramecia",
-    "Wara Wara no Mi": "Paramecia",
-    "Shiro Shiro no Mi": "Paramecia",
-    "Bata Bata no Mi": "Paramecia",
-    "Memo Memo no Mi": "Paramecia",
-    "Fuku Fuku no Mi": "Paramecia",
-    "Toki Toki no Mi": "Paramecia",
-    "Muchi Muchi no Mi": "Paramecia",
-    "Fude Fude no Mi": "Paramecia",
-    "Kibi Kibi no Mi": "Paramecia",
-    "Maki Maki no Mi": "Paramecia",
-    "Shiku Shiku no Mi": "Paramecia",
-    "Nori Nori no Mi": "Paramecia",
-    "Gocha Gocha no Mi": "Paramecia",
-    "Iku Iku no Mi": "Paramecia",
-    "Rako Rako no Mi": "Paramecia",
-    "Gomu Gomu no Mi": "Zoan",
-    "Gomu-Gomu no Mi": "Zoan",
-
-    # =========================
-    # LOGIA
-    # =========================
-    "Moku Moku no Mi": "Logia",
-    "Suna Suna no Mi": "Logia",
-    "Mera Mera no Mi": "Logia",
-    "Goro Goro no Mi": "Logia",
-    "Hie Hie no Mi": "Logia",
-    "Yami Yami no Mi": "Logia",
-    "Pika Pika no Mi": "Logia",
-    "Magu Magu no Mi": "Logia",
-    "Numa Numa no Mi": "Logia",
-    "Gasu Gasu no Mi": "Logia",
-    "Yuki Yuki no Mi": "Logia",
-    "Mori Mori no Mi": "Logia",
-    "Susu Susu no Mi": "Logia",
-
-    # =========================
-    # ZOAN
-    # =========================
-    "Hito Hito no Mi": "Zoan",
-    "Ushi Ushi no Mi, Model: Bison": "Zoan",
-    "Tori Tori no Mi, Model: Falcon": "Zoan",
-    "Inu Inu no Mi, Model: Jackal": "Zoan",
-    "Mogu Mogu no Mi": "Zoan",
-    "Uma Uma no Mi": "Zoan",
-    "Neko Neko no Mi, Model: Leopard": "Zoan",
-    "Inu Inu no Mi, Model: Wolf": "Zoan",
-    "Zou Zou no Mi": "Zoan",
-    "Inu Inu no Mi, Model: Dachshund": "Zoan",
-    "Ushi Ushi no Mi, Model: Giraffe": "Zoan",
-    "Ryu Ryu no Mi, Model: Allosaurus": "Zoan",
-    "Ryu Ryu no Mi, Model: Spinosaurus": "Zoan",
-    "Ryu Ryu no Mi, Model: Pteranodon": "Zoan",
-    "Ryu Ryu no Mi, Model: Brachiosaurus": "Zoan",
-    "Ryu Ryu no Mi, Model: Triceratops": "Zoan",
-    "Ryu Ryu no Mi, Model: Pachycephalosaurus": "Zoan",
-    "Kame Kame no Mi": "Zoan",
-    "Hebi Hebi no Mi, Model: Anaconda": "Zoan",
-    "Hebi Hebi no Mi, Model: King Cobra": "Zoan",
-    "Sara Sara no Mi, Model: Axolotl": "Zoan",
-    "Tori Tori no Mi, Model: Phoenix": "Zoan",
-    "Hito Hito no Mi, Model: Daibutsu": "Zoan",
-    "Inu Inu no Mi, Model: Kyubi no Kitsune": "Zoan",
-    "Uo Uo no Mi, Model: Seiryu": "Zoan",
-    "Inu Inu no Mi, Model: Okuchi no Makami": "Zoan",
-    "Hebi Hebi no Mi, Model: Yamata no Orochi": "Zoan",
-    "Hito Hito no Mi, Model: Onyudo": "Zoan",
-    "Hito Hito no Mi, Model: Nika": "Zoan",
-    "Uma Uma no Mi, Model: Pegasus": "Zoan",
-    "Batto Batto no Mi, Model: Vampire": "Zoan",
-    "Tori Tori no Mi, Model: Albatross": "Zoan",
-    "Inu Inu no Mi, Model: Tanuki": "Zoan",
+    # Fallback alias jika diperlukan
+    "gomu gomu no mi": "Zoan",
+    "gomu-gomu no mi": "Zoan",
 }
+
+
+def load_devil_fruits_types():
+    global DEVIL_FRUIT_TYPES
+    try:
+        resp = requests.get(DEVIL_FRUITS_API_URL, timeout=10)
+        if resp.status_code == 200:
+            for item in resp.json():
+                name = item.get('name', '').strip()
+                f_type = item.get('type', '').strip()
+                if name and f_type:
+                    clean = re.sub(r'\s*\([^)]*awakened[^)]*\)', '', name, flags=re.IGNORECASE).strip()
+                    DEVIL_FRUIT_TYPES[clean.casefold()] = f_type
+                    base = clean.split(',')[0].strip()
+                    if base.casefold() not in DEVIL_FRUIT_TYPES:
+                        DEVIL_FRUIT_TYPES[base.casefold()] = f_type
+    except Exception as e:
+        print(f"Warning: Failed to fetch devil fruits data: {e}")
 
 
 def get_devil_fruit_type(fruit_name):
@@ -165,13 +40,12 @@ def get_devil_fruit_type(fruit_name):
     clean = re.sub(r'\s*\([^)]*awakened[^)]*\)', '', str(fruit_name), flags=re.IGNORECASE).strip()
     if 'SMILE' in clean.upper() or 'ZOAN' in clean.upper() or 'MODEL:' in clean.upper():
         return 'Zoan'
-    for k, v in DEVIL_FRUIT_TYPES.items():
-        if k.casefold() == clean.casefold():
-            return v
-    base = clean.split(',')[0].strip()
-    for k, v in DEVIL_FRUIT_TYPES.items():
-        if k.casefold() == base.casefold():
-            return v
+    cf = clean.casefold()
+    if cf in DEVIL_FRUIT_TYPES:
+        return DEVIL_FRUIT_TYPES[cf]
+    base = clean.split(',')[0].strip().casefold()
+    if base in DEVIL_FRUIT_TYPES:
+        return DEVIL_FRUIT_TYPES[base]
     return None
 
 
@@ -269,6 +143,8 @@ def main(page: ft.Page):
     items_per_page = 30
     current_char = None
     category_dropdown = None
+    category_container = None
+    category_label_text = None
     arc_menu_card = None
     arc_search_input = None
     fab_inner_center = None
@@ -305,9 +181,10 @@ def main(page: ft.Page):
             arc_menu_card.border = get_modern_border()
             arc_search_input.bgcolor = DARK_BG if page.theme_mode == ft.ThemeMode.DARK else LIGHT_BG
             arc_search_input.color = get_text_main()
-            if category_dropdown:
-                category_dropdown.bgcolor = DARK_BG if page.theme_mode == ft.ThemeMode.DARK else LIGHT_BG
-                category_dropdown.color = get_text_main()
+            if category_container:
+                category_container.bgcolor = DARK_BG if page.theme_mode == ft.ThemeMode.DARK else LIGHT_BG
+            if category_label_text:
+                category_label_text.color = get_text_main()
             build_filter_list_items()
         render_page()
         page.update()
@@ -409,11 +286,26 @@ def main(page: ft.Page):
     selected_arc = None
     selected_df = None
     selected_race = None
+    selected_mode = None
 
     arc_counts = {}
     race_counts = {}
     df_type_counts = {}
     df_fruit_counts = {}
+
+    def get_character_game_mode(c):
+        journey_count = len(c.get('journey') or [])
+        if journey_count >= 6:
+            return "Easy"
+        elif journey_count >= 2:
+            return "Medium"
+        else:
+            return "Hard"
+
+    def matches_game_mode_filter(c, target):
+        if not target:
+            return True
+        return get_character_game_mode(c).lower() == target.lower()
 
     def matches_df_filter(c, target):
         if not target:
@@ -449,6 +341,7 @@ def main(page: ft.Page):
             and (not selected_arc or get_story_arc(c.get('first_appearance_arc')) == selected_arc)
             and (not selected_race or (c.get('race') or 'Unknown').strip() == selected_race)
             and matches_df_filter(c, selected_df)
+            and matches_game_mode_filter(c, selected_mode)
         ]
         current_page = 1
         render_page()
@@ -477,25 +370,11 @@ def main(page: ft.Page):
             return "Unknown"
 
         fruit_name = devil_fruit.strip()
-
-        # Buah buatan SMILE termasuk kategori Zoan
-        if "SMILE" in fruit_name.upper():
-            return f"Zoan -- {fruit_name}"
-
-        # Cocokkan nama buah tanpa membedakan huruf besar/kecil
-        fruit_type = next(
-            (
-                kind
-                for name, kind in DEVIL_FRUIT_TYPES.items()
-                if name.casefold() == fruit_name.casefold()
-            ),
-            None,
-        )
+        fruit_type = get_devil_fruit_type(fruit_name)
 
         if fruit_type:
             return f"{fruit_type} -- {fruit_name}"
 
-        # Jangan menebak jenis buah yang belum dikenal
         return fruit_name
 
     async def close_fs(e):
@@ -733,17 +612,7 @@ def main(page: ft.Page):
                 )
 
             def get_df_type(f_name):
-                clean = re.sub(r'\s*\([^)]*awakened[^)]*\)', '', f_name, flags=re.IGNORECASE).strip()
-                if 'SMILE' in clean.upper() or 'ZOAN' in clean.upper() or 'MODEL:' in clean.upper():
-                    return 'Zoan'
-                for k, v in DEVIL_FRUIT_TYPES.items():
-                    if k.casefold() == clean.casefold():
-                        return v
-                base = clean.split(',')[0].strip()
-                for k, v in DEVIL_FRUIT_TYPES.items():
-                    if k.casefold() == base.casefold():
-                        return v
-                return None
+                return get_devil_fruit_type(f_name)
 
             char_name = str(char.get('name', '')).lower()
             fruit_rows = []
@@ -1211,6 +1080,7 @@ def main(page: ft.Page):
         arc_menu_card.visible = True
         set_active_state()
         position_arc_menu()
+        update_active_filter_display()
         page.update()
 
     def close_arc_menu():
@@ -1343,7 +1213,7 @@ def main(page: ft.Page):
             on_click=on_clear_fn
         )
 
-    def create_default_badge(text):
+    def create_default_badge(text, on_click_fn=None):
         return ft.Container(
             content=ft.Text(
                 text,
@@ -1358,11 +1228,12 @@ def main(page: ft.Page):
             padding=ft.Padding(12, 0, 12, 0),
             height=36,
             alignment=ft.Alignment.CENTER,
-            tooltip=text
+            tooltip=text,
+            on_click=on_click_fn
         )
 
     active_filters_row = ft.Row(
-        controls=[create_default_badge("Semua Arc")],
+        controls=[create_default_badge("Semua Arcs")],
         spacing=6,
         scroll=ft.ScrollMode.AUTO,
         alignment=ft.MainAxisAlignment.START,
@@ -1376,32 +1247,40 @@ def main(page: ft.Page):
         alignment=ft.Alignment.CENTER_LEFT
     )
 
-    def clear_arc_filter(e):
+    def clear_arc_filter(e=None):
         nonlocal selected_arc
         selected_arc = None
         update_active_filter_display()
         build_filter_list_items()
         apply_filters()
 
-    def clear_df_filter(e):
+    def clear_df_filter(e=None):
         nonlocal selected_df
         selected_df = None
         update_active_filter_display()
         build_filter_list_items()
         apply_filters()
 
-    def clear_race_filter(e):
+    def clear_race_filter(e=None):
         nonlocal selected_race
         selected_race = None
         update_active_filter_display()
         build_filter_list_items()
         apply_filters()
 
+    def clear_mode_filter(e=None):
+        nonlocal selected_mode
+        selected_mode = None
+        update_active_filter_display()
+        build_filter_list_items()
+        apply_filters()
+
     def clear_all_filters(e=None):
-        nonlocal selected_arc, selected_df, selected_race
+        nonlocal selected_arc, selected_df, selected_race, selected_mode
         selected_arc = None
         selected_df = None
         selected_race = None
+        selected_mode = None
         update_active_filter_display()
         build_filter_list_items()
         apply_filters()
@@ -1409,26 +1288,78 @@ def main(page: ft.Page):
     def update_active_filter_display():
         active_filters_row.controls.clear()
 
-        # Arc badge: either selected arc or default "Semua Arc"
-        if selected_arc:
-            active_filters_row.controls.append(create_filter_badge(selected_arc, clear_arc_filter))
-        else:
-            active_filters_row.controls.append(create_default_badge("Semua Arc"))
+        # Suggest/badge default dinamis sesuai kategori yang sedang dipilih
+        if selected_category == "arcs":
+            if selected_arc:
+                active_filters_row.controls.append(create_filter_badge(selected_arc, clear_arc_filter))
+            else:
+                active_filters_row.controls.append(create_default_badge("Semua Arcs", lambda e: clear_arc_filter(e)))
+        elif selected_category == "devil_fruit":
+            if selected_df:
+                df_name = "Tanpa Buah" if selected_df == "None" else selected_df
+                active_filters_row.controls.append(create_filter_badge(df_name, clear_df_filter))
+            else:
+                active_filters_row.controls.append(create_default_badge("Semua Devil Fruit", lambda e: clear_df_filter(e)))
+        elif selected_category == "race":
+            if selected_race:
+                active_filters_row.controls.append(create_filter_badge(selected_race, clear_race_filter))
+            else:
+                active_filters_row.controls.append(create_default_badge("Semua Race", lambda e: clear_race_filter(e)))
+        elif selected_category == "game_mode":
+            if selected_mode:
+                active_filters_row.controls.append(create_filter_badge(selected_mode, clear_mode_filter))
+            else:
+                active_filters_row.controls.append(create_default_badge("Semua Game Mode", lambda e: clear_mode_filter(e)))
 
-        if selected_df:
+        # Tampilkan juga badge filter aktif dari kategori lain (jika sudah ada filter yang dipilih)
+        if selected_category != "arcs" and selected_arc:
+            active_filters_row.controls.append(create_filter_badge(selected_arc, clear_arc_filter))
+
+        if selected_category != "devil_fruit" and selected_df:
             df_name = "Tanpa Buah" if selected_df == "None" else selected_df
             active_filters_row.controls.append(create_filter_badge(df_name, clear_df_filter))
 
-        if selected_race:
+        if selected_category != "race" and selected_race:
             active_filters_row.controls.append(create_filter_badge(selected_race, clear_race_filter))
+
+        if selected_category != "game_mode" and selected_mode:
+            active_filters_row.controls.append(create_filter_badge(selected_mode, clear_mode_filter))
 
         if active_filter_container.page:
             active_filter_container.update()
 
-    def on_category_changed(e):
+    category_labels = {
+        "arcs": "Story Arcs",
+        "devil_fruit": "Devil Fruit",
+        "race": "Race",
+        "game_mode": "Game Mode",
+    }
+
+    category_label_text = ft.Text(
+        category_labels["arcs"],
+        size=11,
+        weight=ft.FontWeight.BOLD,
+        color=get_text_main(),
+        no_wrap=True
+    )
+
+    category_container = ft.Container(
+        content=ft.Row([
+            category_label_text,
+            ft.Icon(ft.Icons.ARROW_DROP_DOWN_ROUNDED, size=18, color=ACCENT)
+        ], tight=True, spacing=4, vertical_alignment=ft.CrossAxisAlignment.CENTER),
+        bgcolor=DARK_BG if page.theme_mode == ft.ThemeMode.DARK else LIGHT_BG,
+        border=ft.Border.all(1, ft.Colors.with_opacity(0.35, ACCENT)),
+        border_radius=10,
+        padding=ft.Padding(12, 0, 8, 0),
+        height=36,
+        alignment=ft.Alignment.CENTER,
+    )
+
+    def on_category_select(cat_key):
         nonlocal selected_category
-        val = getattr(e, 'data', None) or category_dropdown.value
-        selected_category = val or "arcs"
+        selected_category = cat_key
+        category_label_text.value = category_labels.get(cat_key, "Kategori")
         arc_search_input.value = ""
         if selected_category == "arcs":
             arc_search_input.hint_text = "Cari arc (Wano, Alabasta...)"
@@ -1436,27 +1367,33 @@ def main(page: ft.Page):
             arc_search_input.hint_text = "Cari buah (Zoan, Logia, Mera...)"
         elif selected_category == "race":
             arc_search_input.hint_text = "Cari ras (Human, Fish-man, Mink...)"
+        elif selected_category == "game_mode":
+            arc_search_input.hint_text = "Cari mode (Easy, Medium, Hard...)"
+        update_active_filter_display()
         build_filter_list_items()
         page.update()
 
-    category_dropdown = ft.Dropdown(
-        options=[
-            ft.dropdown.Option("arcs", "Story Arcs"),
-            ft.dropdown.Option("devil_fruit", "Devil Fruit"),
-            ft.dropdown.Option("race", "Race"),
+    category_dropdown = ft.PopupMenuButton(
+        content=category_container,
+        items=[
+            ft.PopupMenuItem(
+                content=ft.Text("Story Arcs", size=12, weight=ft.FontWeight.W_500),
+                on_click=lambda e: on_category_select("arcs")
+            ),
+            ft.PopupMenuItem(
+                content=ft.Text("Devil Fruit", size=12, weight=ft.FontWeight.W_500),
+                on_click=lambda e: on_category_select("devil_fruit")
+            ),
+            ft.PopupMenuItem(
+                content=ft.Text("Race", size=12, weight=ft.FontWeight.W_500),
+                on_click=lambda e: on_category_select("race")
+            ),
+            ft.PopupMenuItem(
+                content=ft.Text("Game Mode", size=12, weight=ft.FontWeight.W_500),
+                on_click=lambda e: on_category_select("game_mode")
+            ),
         ],
-        value="arcs",
-        dense=True,
-        content_padding=ft.Padding(10, 0, 8, 0),
-        height=36,
-        border_radius=10,
-        border_color=ft.Colors.with_opacity(0.3, ACCENT),
-        focused_border_color=ACCENT,
-        bgcolor=DARK_BG if page.theme_mode == ft.ThemeMode.DARK else LIGHT_BG,
-        color=get_text_main(),
-        text_size=12,
-        on_select=on_category_changed,
-        width=132
+        tooltip="Pilih Kategori",
     )
 
     arc_search_input = ft.TextField(
@@ -1474,13 +1411,15 @@ def main(page: ft.Page):
     arc_list_col = ft.Column(spacing=4, scroll=ft.ScrollMode.AUTO, expand=True)
 
     def select_filter(category, item_value):
-        nonlocal selected_arc, selected_df, selected_race
+        nonlocal selected_arc, selected_df, selected_race, selected_mode
         if category == "arcs":
             selected_arc = item_value
         elif category == "devil_fruit":
             selected_df = item_value
         elif category == "race":
             selected_race = item_value
+        elif category == "game_mode":
+            selected_mode = item_value
 
         update_active_filter_display()
         build_filter_list_items()
@@ -1540,11 +1479,12 @@ def main(page: ft.Page):
         search_filter = (arc_search_input.value or "").strip().lower()
 
         if selected_category == "arcs":
-            # Base pool contextual to active devil_fruit and race
+            # Base pool contextual to active devil_fruit, race, and game_mode
             base_pool = [
                 c for c in all_characters
                 if (not selected_race or (c.get('race') or 'Unknown').strip() == selected_race)
                 and matches_df_filter(c, selected_df)
+                and matches_game_mode_filter(c, selected_mode)
             ]
             dynamic_arc_counts = Counter(get_story_arc(c.get('first_appearance_arc')) for c in base_pool)
 
@@ -1553,7 +1493,7 @@ def main(page: ft.Page):
                 is_all_selected = selected_arc is None
                 arc_list_col.controls.append(
                     make_filter_item(
-                        "Semua Arc",
+                        "Semua Arcs",
                         len(base_pool),
                         is_all_selected,
                         lambda e: select_filter("arcs", None),
@@ -1577,11 +1517,12 @@ def main(page: ft.Page):
                 )
 
         elif selected_category == "devil_fruit":
-            # Base pool contextual to active arc and race
+            # Base pool contextual to active arc, race, and game_mode
             base_pool = [
                 c for c in all_characters
                 if (not selected_arc or get_story_arc(c.get('first_appearance_arc')) == selected_arc)
                 and (not selected_race or (c.get('race') or 'Unknown').strip() == selected_race)
+                and matches_game_mode_filter(c, selected_mode)
             ]
 
             # Item 0: All Fruits
@@ -1589,7 +1530,7 @@ def main(page: ft.Page):
                 is_all_selected = selected_df is None
                 arc_list_col.controls.append(
                     make_filter_item(
-                        "Semua Buah Iblis",
+                        "Semua Devil Fruit",
                         len(base_pool),
                         is_all_selected,
                         lambda e: select_filter("devil_fruit", None),
@@ -1659,11 +1600,12 @@ def main(page: ft.Page):
                     )
 
         elif selected_category == "race":
-            # Base pool contextual to active arc and devil_fruit
+            # Base pool contextual to active arc, devil_fruit, and game_mode
             base_pool = [
                 c for c in all_characters
                 if (not selected_arc or get_story_arc(c.get('first_appearance_arc')) == selected_arc)
                 and matches_df_filter(c, selected_df)
+                and matches_game_mode_filter(c, selected_mode)
             ]
             dynamic_race_counts = Counter((c.get('race') or 'Unknown').strip() for c in base_pool)
 
@@ -1672,7 +1614,7 @@ def main(page: ft.Page):
                 is_all_selected = selected_race is None
                 arc_list_col.controls.append(
                     make_filter_item(
-                        "Semua Ras",
+                        "Semua Race",
                         len(base_pool),
                         is_all_selected,
                         lambda e: select_filter("race", None),
@@ -1697,6 +1639,49 @@ def main(page: ft.Page):
                         is_selected,
                         lambda e, r=r_name: select_filter("race", r),
                         icon=ft.Icons.PERSON_ROUNDED
+                    )
+                )
+
+        elif selected_category == "game_mode":
+            # Base pool contextual to active arc, devil_fruit, and race
+            base_pool = [
+                c for c in all_characters
+                if (not selected_arc or get_story_arc(c.get('first_appearance_arc')) == selected_arc)
+                and matches_df_filter(c, selected_df)
+                and (not selected_race or (c.get('race') or 'Unknown').strip() == selected_race)
+            ]
+
+            # Item 0: All Game Modes
+            if not search_filter or "semua" in search_filter or "all" in search_filter or "mode" in search_filter:
+                is_all_selected = selected_mode is None
+                arc_list_col.controls.append(
+                    make_filter_item(
+                        "Semua Game Mode",
+                        len(base_pool),
+                        is_all_selected,
+                        lambda e: select_filter("game_mode", None),
+                        icon=ft.Icons.PUBLIC_ROUNDED
+                    )
+                )
+
+            modes = [
+                ("Easy", ft.Icons.STAR_ROUNDED),
+                ("Medium", ft.Icons.SPEED_ROUNDED),
+                ("Hard", ft.Icons.LOCAL_FIRE_DEPARTMENT_ROUNDED),
+            ]
+
+            for mode_name, mode_icon in modes:
+                if search_filter and search_filter not in mode_name.lower():
+                    continue
+                count = sum(1 for c in base_pool if get_character_game_mode(c) == mode_name)
+                is_selected = selected_mode == mode_name
+                arc_list_col.controls.append(
+                    make_filter_item(
+                        mode_name,
+                        count,
+                        is_selected,
+                        lambda e, m=mode_name: select_filter("game_mode", m),
+                        icon=mode_icon
                     )
                 )
 
@@ -1729,7 +1714,7 @@ def main(page: ft.Page):
                     ft.Row([
                         category_dropdown,
                         active_filter_container
-                    ], spacing=10, alignment=ft.CrossAxisAlignment.CENTER)
+                    ], spacing=10, vertical_alignment=ft.CrossAxisAlignment.CENTER)
                 ], spacing=12),
                 padding=ft.Padding(16, 14, 16, 14)
             ),
@@ -1774,6 +1759,7 @@ def main(page: ft.Page):
     page.add(main_stack)
 
     try:
+        load_devil_fruits_types()
         resp = requests.get(API_URL)
         if resp.status_code == 200:
             all_characters = resp.json()
