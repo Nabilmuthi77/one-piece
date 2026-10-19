@@ -145,6 +145,7 @@ def main(page: ft.Page):
     category_dropdown = None
     category_container = None
     category_label_text = None
+    category_menu_items_text = []
     arc_menu_card = None
     arc_search_input = None
     fab_inner_center = None
@@ -182,9 +183,19 @@ def main(page: ft.Page):
             arc_search_input.bgcolor = DARK_BG if page.theme_mode == ft.ThemeMode.DARK else LIGHT_BG
             arc_search_input.color = get_text_main()
             if category_container:
-                category_container.bgcolor = DARK_BG if page.theme_mode == ft.ThemeMode.DARK else LIGHT_BG
+                category_container.bgcolor = get_card_bg()
+                category_container.border = get_modern_border()
             if category_label_text:
                 category_label_text.color = get_text_main()
+            if category_dropdown:
+                category_dropdown.bgcolor = get_card_bg()
+                category_dropdown.shape = ft.RoundedRectangleBorder(
+                    radius=12,
+                    side=ft.BorderSide(1, ft.Colors.with_opacity(0.3, ACCENT) if page.theme_mode == ft.ThemeMode.DARK else ft.Colors.with_opacity(0.2, ACCENT))
+                )
+            if category_menu_items_text:
+                for item_txt in category_menu_items_text:
+                    item_txt.color = get_text_main()
             build_filter_list_items()
         render_page()
         page.update()
@@ -1348,12 +1359,17 @@ def main(page: ft.Page):
             category_label_text,
             ft.Icon(ft.Icons.ARROW_DROP_DOWN_ROUNDED, size=18, color=ACCENT)
         ], tight=True, spacing=4, vertical_alignment=ft.CrossAxisAlignment.CENTER),
-        bgcolor=DARK_BG if page.theme_mode == ft.ThemeMode.DARK else LIGHT_BG,
-        border=ft.Border.all(1, ft.Colors.with_opacity(0.35, ACCENT)),
+        bgcolor=get_card_bg(),
+        border=get_modern_border(),
         border_radius=10,
         padding=ft.Padding(12, 0, 8, 0),
         height=36,
         alignment=ft.Alignment.CENTER,
+    )
+
+    category_dropdown_wrapper = ft.Container(
+        content=category_container,
+        padding=ft.Padding(0, 0, 0, 4),
     )
 
     def on_category_select(cat_key):
@@ -1373,27 +1389,39 @@ def main(page: ft.Page):
         build_filter_list_items()
         page.update()
 
+    category_menu_items_text = [
+        ft.Text("Story Arcs", size=12, weight=ft.FontWeight.W_500, color=get_text_main()),
+        ft.Text("Devil Fruit", size=12, weight=ft.FontWeight.W_500, color=get_text_main()),
+        ft.Text("Race", size=12, weight=ft.FontWeight.W_500, color=get_text_main()),
+        ft.Text("Game Mode", size=12, weight=ft.FontWeight.W_500, color=get_text_main()),
+    ]
+
     category_dropdown = ft.PopupMenuButton(
-        content=category_container,
+        content=category_dropdown_wrapper,
         menu_position=ft.PopupMenuPosition.UNDER,
-        shape=ft.RoundedRectangleBorder(radius=12),
-        elevation=6,
-        shadow_color=ft.Colors.BLACK_26,
+        padding=0,
+        bgcolor=get_card_bg(),
+        shape=ft.RoundedRectangleBorder(
+            radius=12,
+            side=ft.BorderSide(1, ft.Colors.with_opacity(0.3, ACCENT) if page.theme_mode == ft.ThemeMode.DARK else ft.Colors.with_opacity(0.2, ACCENT))
+        ),
+        elevation=0,
+        shadow_color=ft.Colors.TRANSPARENT,
         items=[
             ft.PopupMenuItem(
-                content=ft.Text("Story Arcs", size=12, weight=ft.FontWeight.W_500),
+                content=category_menu_items_text[0],
                 on_click=lambda e: on_category_select("arcs")
             ),
             ft.PopupMenuItem(
-                content=ft.Text("Devil Fruit", size=12, weight=ft.FontWeight.W_500),
+                content=category_menu_items_text[1],
                 on_click=lambda e: on_category_select("devil_fruit")
             ),
             ft.PopupMenuItem(
-                content=ft.Text("Race", size=12, weight=ft.FontWeight.W_500),
+                content=category_menu_items_text[2],
                 on_click=lambda e: on_category_select("race")
             ),
             ft.PopupMenuItem(
-                content=ft.Text("Game Mode", size=12, weight=ft.FontWeight.W_500),
+                content=category_menu_items_text[3],
                 on_click=lambda e: on_category_select("game_mode")
             ),
         ],
@@ -1722,13 +1750,13 @@ def main(page: ft.Page):
                     ft.Row([
                         category_dropdown,
                         active_filter_container
-                    ], spacing=10, vertical_alignment=ft.CrossAxisAlignment.CENTER)
-                ], spacing=12),
-                padding=ft.Padding(16, 14, 16, 14)
+                    ], spacing=10, vertical_alignment=ft.CrossAxisAlignment.START)
+                ], spacing=10),
+                padding=ft.Padding(16, 14, 16, 4)
             ),
             ft.Container(
                 content=arc_search_input,
-                padding=ft.Padding(14, 10, 14, 14)
+                padding=ft.Padding(14, 4, 14, 10)
             ),
             ft.Container(
                 height=1,

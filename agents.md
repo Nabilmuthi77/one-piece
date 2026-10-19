@@ -53,3 +53,6 @@ tambahan fitur baru
 
 perbaikan
 - bagian kategori sama persiskan ukurannya dengan suggest agar terlihat rapih.
+
+tambahan fitur baru bagian 2 :
+- dropdown filter di modal karakter tolong ubah background nya bro sesuai background tema (ubah juga warna border nya) dan kasih jarak 2px biar keliatan kaya ngambang hehee
