@@ -7,6 +7,174 @@ from collections import Counter
 API_URL = 'https://oparchive.com/data/characters.json'
 BASE_IMG_URL = 'https://oparchive.com'
 
+
+DEVIL_FRUIT_TYPES = {
+    # =========================
+    # PARAMECIA
+    # =========================
+    "Bara Bara no Mi": "Paramecia",
+    "Sube Sube no Mi": "Paramecia",
+    "Bomu Bomu no Mi": "Paramecia",
+    "Kiro Kiro no Mi": "Paramecia",
+    "Hana Hana no Mi": "Paramecia",
+    "Doru Doru no Mi": "Paramecia",
+    "Baku Baku no Mi": "Paramecia",
+    "Mane Mane no Mi": "Paramecia",
+    "Supa Supa no Mi": "Paramecia",
+    "Toge Toge no Mi": "Paramecia",
+    "Ori Ori no Mi": "Paramecia",
+    "Bane Bane no Mi": "Paramecia",
+    "Ito Ito no Mi": "Paramecia",
+    "Noro Noro no Mi": "Paramecia",
+    "Doa Doa no Mi": "Paramecia",
+    "Awa Awa no Mi": "Paramecia",
+    "Beri Beri no Mi": "Paramecia",
+    "Sabi Sabi no Mi": "Paramecia",
+    "Shari Shari no Mi": "Paramecia",
+    "Yomi Yomi no Mi": "Paramecia",
+    "Kage Kage no Mi": "Paramecia",
+    "Horo Horo no Mi": "Paramecia",
+    "Nikyu Nikyu no Mi": "Paramecia",
+    "Choki Choki no Mi": "Paramecia",
+    "Doku Doku no Mi": "Paramecia",
+    "Horu Horu no Mi": "Paramecia",
+    "Chiyu Chiyu no Mi": "Paramecia",
+    "Gura Gura no Mi": "Paramecia",
+    "Kira Kira no Mi": "Paramecia",
+    "Poke Poke no Mi": "Paramecia",
+    "Woshu Woshu no Mi": "Paramecia",
+    "Fuwa Fuwa no Mi": "Paramecia",
+    "Mato Mato no Mi": "Paramecia",
+    "Ope Ope no Mi": "Paramecia",
+    "Buki Buki no Mi": "Paramecia",
+    "Guru Guru no Mi": "Paramecia",
+    "Bisu Bisu no Mi": "Paramecia",
+    "Beta Beta no Mi": "Paramecia",
+    "Zushi Zushi no Mi": "Paramecia",
+    "Hobi Hobi no Mi": "Paramecia",
+    "Bari Bari no Mi": "Paramecia",
+    "Nui Nui no Mi": "Paramecia",
+    "Giro Giro no Mi": "Paramecia",
+    "Ato Ato no Mi": "Paramecia",
+    "Jake Jake no Mi": "Paramecia",
+    "Pamu Pamu no Mi": "Paramecia",
+    "Sui Sui no Mi": "Paramecia",
+    "Ton Ton no Mi": "Paramecia",
+    "Hira Hira no Mi": "Paramecia",
+    "Ishi Ishi no Mi": "Paramecia",
+    "Nagi Nagi no Mi": "Paramecia",
+    "Mochi Mochi no Mi": "Paramecia",
+    "Pero Pero no Mi": "Paramecia",
+    "Mira Mira no Mi": "Paramecia",
+    "Buku Buku no Mi": "Paramecia",
+    "Kuri Kuri no Mi": "Paramecia",
+    "Kuku Kuku no Mi": "Paramecia",
+    "Shibo Shibo no Mi": "Paramecia",
+    "Hoya Hoya no Mi": "Paramecia",
+    "Netsu Netsu no Mi": "Paramecia",
+    "Kobu Kobu no Mi": "Paramecia",
+    "Oshi Oshi no Mi": "Paramecia",
+    "Juku Juku no Mi": "Paramecia",
+    "Toshi Toshi no Mi": "Paramecia",
+    "Riki Riki no Mi": "Paramecia",
+    "Shima Shima no Mi": "Paramecia",
+    "Wapu Wapu no Mi": "Paramecia",
+    "Gunyo Gunyo no Mi": "Paramecia",
+    "Mero Mero no Mi": "Paramecia",
+    "Jiki Jiki no Mi": "Paramecia",
+    "Hana Hana no Mi": "Paramecia",
+    "Soru Soru no Mi": "Paramecia",
+    "Suke Suke no Mi": "Paramecia",
+    "Wara Wara no Mi": "Paramecia",
+    "Shiro Shiro no Mi": "Paramecia",
+    "Bata Bata no Mi": "Paramecia",
+    "Memo Memo no Mi": "Paramecia",
+    "Fuku Fuku no Mi": "Paramecia",
+    "Toki Toki no Mi": "Paramecia",
+    "Muchi Muchi no Mi": "Paramecia",
+    "Fude Fude no Mi": "Paramecia",
+    "Kibi Kibi no Mi": "Paramecia",
+    "Maki Maki no Mi": "Paramecia",
+    "Shiku Shiku no Mi": "Paramecia",
+    "Nori Nori no Mi": "Paramecia",
+    "Gocha Gocha no Mi": "Paramecia",
+    "Iku Iku no Mi": "Paramecia",
+    "Rako Rako no Mi": "Paramecia",
+    "Gomu Gomu no Mi": "Zoan",
+    "Gomu-Gomu no Mi": "Zoan",
+
+    # =========================
+    # LOGIA
+    # =========================
+    "Moku Moku no Mi": "Logia",
+    "Suna Suna no Mi": "Logia",
+    "Mera Mera no Mi": "Logia",
+    "Goro Goro no Mi": "Logia",
+    "Hie Hie no Mi": "Logia",
+    "Yami Yami no Mi": "Logia",
+    "Pika Pika no Mi": "Logia",
+    "Magu Magu no Mi": "Logia",
+    "Numa Numa no Mi": "Logia",
+    "Gasu Gasu no Mi": "Logia",
+    "Yuki Yuki no Mi": "Logia",
+    "Mori Mori no Mi": "Logia",
+    "Susu Susu no Mi": "Logia",
+
+    # =========================
+    # ZOAN
+    # =========================
+    "Hito Hito no Mi": "Zoan",
+    "Ushi Ushi no Mi, Model: Bison": "Zoan",
+    "Tori Tori no Mi, Model: Falcon": "Zoan",
+    "Inu Inu no Mi, Model: Jackal": "Zoan",
+    "Mogu Mogu no Mi": "Zoan",
+    "Uma Uma no Mi": "Zoan",
+    "Neko Neko no Mi, Model: Leopard": "Zoan",
+    "Inu Inu no Mi, Model: Wolf": "Zoan",
+    "Zou Zou no Mi": "Zoan",
+    "Inu Inu no Mi, Model: Dachshund": "Zoan",
+    "Ushi Ushi no Mi, Model: Giraffe": "Zoan",
+    "Ryu Ryu no Mi, Model: Allosaurus": "Zoan",
+    "Ryu Ryu no Mi, Model: Spinosaurus": "Zoan",
+    "Ryu Ryu no Mi, Model: Pteranodon": "Zoan",
+    "Ryu Ryu no Mi, Model: Brachiosaurus": "Zoan",
+    "Ryu Ryu no Mi, Model: Triceratops": "Zoan",
+    "Ryu Ryu no Mi, Model: Pachycephalosaurus": "Zoan",
+    "Kame Kame no Mi": "Zoan",
+    "Hebi Hebi no Mi, Model: Anaconda": "Zoan",
+    "Hebi Hebi no Mi, Model: King Cobra": "Zoan",
+    "Sara Sara no Mi, Model: Axolotl": "Zoan",
+    "Tori Tori no Mi, Model: Phoenix": "Zoan",
+    "Hito Hito no Mi, Model: Daibutsu": "Zoan",
+    "Inu Inu no Mi, Model: Kyubi no Kitsune": "Zoan",
+    "Uo Uo no Mi, Model: Seiryu": "Zoan",
+    "Inu Inu no Mi, Model: Okuchi no Makami": "Zoan",
+    "Hebi Hebi no Mi, Model: Yamata no Orochi": "Zoan",
+    "Hito Hito no Mi, Model: Onyudo": "Zoan",
+    "Hito Hito no Mi, Model: Nika": "Zoan",
+    "Uma Uma no Mi, Model: Pegasus": "Zoan",
+    "Batto Batto no Mi, Model: Vampire": "Zoan",
+    "Tori Tori no Mi, Model: Albatross": "Zoan",
+    "Inu Inu no Mi, Model: Tanuki": "Zoan",
+}
+
+
+def get_devil_fruit_type(fruit_name):
+    if not fruit_name:
+        return None
+    clean = re.sub(r'\s*\([^)]*awakened[^)]*\)', '', str(fruit_name), flags=re.IGNORECASE).strip()
+    if 'SMILE' in clean.upper() or 'ZOAN' in clean.upper() or 'MODEL:' in clean.upper():
+        return 'Zoan'
+    for k, v in DEVIL_FRUIT_TYPES.items():
+        if k.casefold() == clean.casefold():
+            return v
+    base = clean.split(',')[0].strip()
+    for k, v in DEVIL_FRUIT_TYPES.items():
+        if k.casefold() == base.casefold():
+            return v
+    return None
+
+
 # Colors matching style.css
 DARK_BG = "#0f172a"
 DARK_CARD = "#1e293b"
@@ -100,6 +268,7 @@ def main(page: ft.Page):
     current_page = 1
     items_per_page = 30
     current_char = None
+    category_dropdown = None
     arc_menu_card = None
     arc_search_input = None
     fab_inner_center = None
@@ -136,7 +305,10 @@ def main(page: ft.Page):
             arc_menu_card.border = get_modern_border()
             arc_search_input.bgcolor = DARK_BG if page.theme_mode == ft.ThemeMode.DARK else LIGHT_BG
             arc_search_input.color = get_text_main()
-            build_arc_list_items()
+            if category_dropdown:
+                category_dropdown.bgcolor = DARK_BG if page.theme_mode == ft.ThemeMode.DARK else LIGHT_BG
+                category_dropdown.color = get_text_main()
+            build_filter_list_items()
         render_page()
         page.update()
 
@@ -233,20 +405,51 @@ def main(page: ft.Page):
     pagination_row = ft.Row([prev_btn, page_info, next_btn], alignment=ft.MainAxisAlignment.CENTER, visible=False)
     pagination_container = ft.Container(content=pagination_row, padding=ft.Padding(0, 20, 0, 40))
 
+    selected_category = "arcs"
     selected_arc = None
+    selected_df = None
+    selected_race = None
+
     arc_counts = {}
+    race_counts = {}
+    df_type_counts = {}
+    df_fruit_counts = {}
+
+    def matches_df_filter(c, target):
+        if not target:
+            return True
+        raw = c.get('devil_fruit')
+        items = raw if isinstance(raw, list) else ([raw] if raw else [])
+        items = [str(x).strip() for x in items if x and str(x).strip().lower() not in ['none', 'unknown', '']]
+
+        if target == 'None':
+            return len(items) == 0
+
+        if target in ['Paramecia', 'Zoan', 'Logia']:
+            for it in items:
+                clean = re.sub(r'\s*\([^)]*awakened[^)]*\)', '', it, flags=re.IGNORECASE).strip()
+                t = get_devil_fruit_type(clean)
+                if t and t.lower() == target.lower():
+                    return True
+            return False
+
+        for it in items:
+            clean = re.sub(r'\s*\([^)]*awakened[^)]*\)', '', it, flags=re.IGNORECASE).strip()
+            if target.lower() in clean.lower():
+                return True
+        return False
 
     def apply_filters():
         nonlocal current_page, filtered_characters
         query = (search_input.value or "").strip().lower()
-        if not query and not selected_arc:
-            filtered_characters = all_characters
-        else:
-            filtered_characters = [
-                c for c in all_characters
-                if (not query or query in c.get('name', '').lower())
-                and (not selected_arc or get_story_arc(c.get('first_appearance_arc')) == selected_arc)
-            ]
+
+        filtered_characters = [
+            c for c in all_characters
+            if (not query or query in c.get('name', '').lower())
+            and (not selected_arc or get_story_arc(c.get('first_appearance_arc')) == selected_arc)
+            and (not selected_race or (c.get('race') or 'Unknown').strip() == selected_race)
+            and matches_df_filter(c, selected_df)
+        ]
         current_page = 1
         render_page()
 
@@ -268,7 +471,32 @@ def main(page: ft.Page):
             elif 'conqueror' in hl: res.append('Haoshoku')
             else: res.append(h)
         return ', '.join(res) if res else 'No Haki or Unknown'
+ 
+    def format_devil_fruit(devil_fruit):
+        if not devil_fruit:
+            return "Unknown"
 
+        fruit_name = devil_fruit.strip()
+
+        # Buah buatan SMILE termasuk kategori Zoan
+        if "SMILE" in fruit_name.upper():
+            return f"Zoan -- {fruit_name}"
+
+        # Cocokkan nama buah tanpa membedakan huruf besar/kecil
+        fruit_type = next(
+            (
+                kind
+                for name, kind in DEVIL_FRUIT_TYPES.items()
+                if name.casefold() == fruit_name.casefold()
+            ),
+            None,
+        )
+
+        if fruit_type:
+            return f"{fruit_type} -- {fruit_name}"
+
+        # Jangan menebak jenis buah yang belum dikenal
+        return fruit_name
 
     async def close_fs(e):
         nonlocal is_locked
@@ -472,6 +700,128 @@ def main(page: ft.Page):
                 width=float('inf')
             )
 
+
+        def devil_fruit_item(char):
+            raw_fruit = char.get('devil_fruit')
+            if not raw_fruit or str(raw_fruit).strip().lower() in ['none', 'unknown', '']:
+                return ft.Container(
+                    content=ft.Column([
+                        ft.Text('DEVIL FRUIT', size=11, color=get_text_muted(), weight=ft.FontWeight.BOLD),
+                        ft.Text('None', size=14, color=get_text_main(), weight=ft.FontWeight.W_600)
+                    ], spacing=4),
+                    gradient=get_modern_gradient(),
+                    padding=ft.Padding(left=16, right=16, top=10, bottom=10),
+                    border_radius=12,
+                    border=get_modern_border(),
+                    width=float('inf')
+                )
+
+            fruit_list = raw_fruit if isinstance(raw_fruit, list) else [raw_fruit]
+            fruit_list = [str(f).strip() for f in fruit_list if str(f).strip() and str(f).strip().lower() not in ['none', 'unknown', '']]
+
+            if not fruit_list:
+                return ft.Container(
+                    content=ft.Column([
+                        ft.Text('DEVIL FRUIT', size=11, color=get_text_muted(), weight=ft.FontWeight.BOLD),
+                        ft.Text('None', size=14, color=get_text_main(), weight=ft.FontWeight.W_600)
+                    ], spacing=4),
+                    gradient=get_modern_gradient(),
+                    padding=ft.Padding(left=16, right=16, top=10, bottom=10),
+                    border_radius=12,
+                    border=get_modern_border(),
+                    width=float('inf')
+                )
+
+            def get_df_type(f_name):
+                clean = re.sub(r'\s*\([^)]*awakened[^)]*\)', '', f_name, flags=re.IGNORECASE).strip()
+                if 'SMILE' in clean.upper() or 'ZOAN' in clean.upper() or 'MODEL:' in clean.upper():
+                    return 'Zoan'
+                for k, v in DEVIL_FRUIT_TYPES.items():
+                    if k.casefold() == clean.casefold():
+                        return v
+                base = clean.split(',')[0].strip()
+                for k, v in DEVIL_FRUIT_TYPES.items():
+                    if k.casefold() == base.casefold():
+                        return v
+                return None
+
+            char_name = str(char.get('name', '')).lower()
+            fruit_rows = []
+
+            for f_str in fruit_list:
+                is_awakened = bool(re.search(r'awakened', f_str, re.IGNORECASE)) or ('luffy' in char_name)
+                clean_name = re.sub(r'\s*\(\s*Awakened\s*\)', '', f_str, flags=re.IGNORECASE).strip()
+                f_type = get_df_type(clean_name)
+                formatted_name = clean_name.replace(', ', ' -- ')
+
+                row_controls = []
+                if f_type:
+                    # Badge tipe buah warna biru wave footer (ACCENT = #0ea5e9)
+                    row_controls.append(
+                        ft.Container(
+                            content=ft.Text(
+                                f_type.upper(),
+                                size=11,
+                                color=ft.Colors.WHITE,
+                                weight=ft.FontWeight.BOLD
+                            ),
+                            bgcolor=ACCENT,
+                            padding=ft.Padding(left=10, right=10, top=4, bottom=4),
+                            border_radius=20
+                        )
+                    )
+
+                if is_awakened:
+                    # Awakening badge putih
+                    row_controls.append(
+                        ft.Container(
+                            content=ft.Text(
+                                "AWAKENING",
+                                size=11,
+                                color="#0f172a",
+                                weight=ft.FontWeight.BOLD
+                            ),
+                            bgcolor=ft.Colors.WHITE,
+                            padding=ft.Padding(left=10, right=10, top=4, bottom=4),
+                            border_radius=20
+                        )
+                    )
+
+                prefix = "-- " if (f_type or is_awakened) else ""
+                row_controls.append(
+                    ft.Text(
+                        f"{prefix}{formatted_name}",
+                        size=14,
+                        color=get_text_main(),
+                        weight=ft.FontWeight.W_600
+                    )
+                )
+
+                # Sejajar horizontal dalam satu row
+                fruit_rows.append(
+                    ft.Row(
+                        controls=row_controls,
+                        alignment=ft.MainAxisAlignment.START,
+                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                        wrap=True,
+                        spacing=8,
+                        run_spacing=4
+                    )
+                )
+
+            return ft.Container(
+                content=ft.Column([
+                    ft.Text('DEVIL FRUIT', size=11, color=get_text_muted(), weight=ft.FontWeight.BOLD),
+                    *fruit_rows
+                ], spacing=6),
+                gradient=get_modern_gradient(),
+                padding=ft.Padding(left=16, right=16, top=10, bottom=10),
+                border_radius=12,
+                border=get_modern_border(),
+                width=float('inf')
+            )
+
+
         content = ft.Column([
             ft.Stack([
                 ft.Container(
@@ -513,6 +863,7 @@ def main(page: ft.Page):
                     ),
                     info_item("Bounty", format_bounty(char.get('bounty'))),
                     info_item("Haki Types", format_haki(char.get('haki'))),
+                    devil_fruit_item(char),
                     info_item("Affiliation", char.get('affiliation', 'None')),
                     info_item("Origin", char.get('origin', 'Unknown')),
                     info_item("Race", char.get('race', 'Unknown')),
@@ -810,8 +1161,8 @@ def main(page: ft.Page):
         curr_ph = float(page.height if page.height else 800)
 
         # Dynamic menu dimensions based on viewport
-        menu_width = min(320.0, max(260.0, curr_pw - (VIEWPORT_MARGIN * 2)))
-        menu_height = min(460.0, max(300.0, curr_ph - 100))
+        menu_width = min(340.0, max(280.0, curr_pw - (VIEWPORT_MARGIN * 2)))
+        menu_height = min(480.0, max(320.0, curr_ph - 90))
         arc_menu_card.width = menu_width
         arc_menu_card.height = menu_height
 
@@ -966,11 +1317,146 @@ def main(page: ft.Page):
         on_click=lambda e: close_arc_menu()
     )
 
-    active_arc_text = ft.Text(
-        "Semua Arc",
-        size=11,
-        weight=ft.FontWeight.W_600,
-        color=ACCENT
+    def create_filter_badge(text, on_clear_fn):
+        return ft.Container(
+            content=ft.Row([
+                ft.Text(
+                    text,
+                    size=11,
+                    weight=ft.FontWeight.BOLD,
+                    color=ACCENT,
+                    no_wrap=True
+                ),
+                ft.Icon(
+                    ft.Icons.CLOSE_ROUNDED,
+                    size=13,
+                    color=ACCENT
+                )
+            ], tight=True, spacing=4, alignment=ft.MainAxisAlignment.CENTER, vertical_alignment=ft.CrossAxisAlignment.CENTER),
+            bgcolor=ft.Colors.with_opacity(0.12, ACCENT),
+            border=ft.Border.all(1, ft.Colors.with_opacity(0.35, ACCENT)),
+            border_radius=10,
+            padding=ft.Padding(10, 0, 8, 0),
+            height=36,
+            alignment=ft.Alignment.CENTER,
+            tooltip=f"Hapus {text}",
+            on_click=on_clear_fn
+        )
+
+    def create_default_badge(text):
+        return ft.Container(
+            content=ft.Text(
+                text,
+                size=11,
+                weight=ft.FontWeight.BOLD,
+                color=ACCENT,
+                no_wrap=True
+            ),
+            bgcolor=ft.Colors.with_opacity(0.12, ACCENT),
+            border=ft.Border.all(1, ft.Colors.with_opacity(0.35, ACCENT)),
+            border_radius=10,
+            padding=ft.Padding(12, 0, 12, 0),
+            height=36,
+            alignment=ft.Alignment.CENTER,
+            tooltip=text
+        )
+
+    active_filters_row = ft.Row(
+        controls=[create_default_badge("Semua Arc")],
+        spacing=6,
+        scroll=ft.ScrollMode.AUTO,
+        alignment=ft.MainAxisAlignment.START,
+        vertical_alignment=ft.CrossAxisAlignment.CENTER
+    )
+
+    active_filter_container = ft.Container(
+        content=active_filters_row,
+        height=36,
+        expand=True,
+        alignment=ft.Alignment.CENTER_LEFT
+    )
+
+    def clear_arc_filter(e):
+        nonlocal selected_arc
+        selected_arc = None
+        update_active_filter_display()
+        build_filter_list_items()
+        apply_filters()
+
+    def clear_df_filter(e):
+        nonlocal selected_df
+        selected_df = None
+        update_active_filter_display()
+        build_filter_list_items()
+        apply_filters()
+
+    def clear_race_filter(e):
+        nonlocal selected_race
+        selected_race = None
+        update_active_filter_display()
+        build_filter_list_items()
+        apply_filters()
+
+    def clear_all_filters(e=None):
+        nonlocal selected_arc, selected_df, selected_race
+        selected_arc = None
+        selected_df = None
+        selected_race = None
+        update_active_filter_display()
+        build_filter_list_items()
+        apply_filters()
+
+    def update_active_filter_display():
+        active_filters_row.controls.clear()
+
+        # Arc badge: either selected arc or default "Semua Arc"
+        if selected_arc:
+            active_filters_row.controls.append(create_filter_badge(selected_arc, clear_arc_filter))
+        else:
+            active_filters_row.controls.append(create_default_badge("Semua Arc"))
+
+        if selected_df:
+            df_name = "Tanpa Buah" if selected_df == "None" else selected_df
+            active_filters_row.controls.append(create_filter_badge(df_name, clear_df_filter))
+
+        if selected_race:
+            active_filters_row.controls.append(create_filter_badge(selected_race, clear_race_filter))
+
+        if active_filter_container.page:
+            active_filter_container.update()
+
+    def on_category_changed(e):
+        nonlocal selected_category
+        val = getattr(e, 'data', None) or category_dropdown.value
+        selected_category = val or "arcs"
+        arc_search_input.value = ""
+        if selected_category == "arcs":
+            arc_search_input.hint_text = "Cari arc (Wano, Alabasta...)"
+        elif selected_category == "devil_fruit":
+            arc_search_input.hint_text = "Cari buah (Zoan, Logia, Mera...)"
+        elif selected_category == "race":
+            arc_search_input.hint_text = "Cari ras (Human, Fish-man, Mink...)"
+        build_filter_list_items()
+        page.update()
+
+    category_dropdown = ft.Dropdown(
+        options=[
+            ft.dropdown.Option("arcs", "Story Arcs"),
+            ft.dropdown.Option("devil_fruit", "Devil Fruit"),
+            ft.dropdown.Option("race", "Race"),
+        ],
+        value="arcs",
+        dense=True,
+        content_padding=ft.Padding(10, 0, 8, 0),
+        height=36,
+        border_radius=10,
+        border_color=ft.Colors.with_opacity(0.3, ACCENT),
+        focused_border_color=ACCENT,
+        bgcolor=DARK_BG if page.theme_mode == ft.ThemeMode.DARK else LIGHT_BG,
+        color=get_text_main(),
+        text_size=12,
+        on_select=on_category_changed,
+        width=132
     )
 
     arc_search_input = ft.TextField(
@@ -982,88 +1468,237 @@ def main(page: ft.Page):
         height=38,
         bgcolor=DARK_BG if page.theme_mode == ft.ThemeMode.DARK else LIGHT_BG,
         color=get_text_main(),
-        on_change=lambda e: build_arc_list_items()
+        on_change=lambda e: build_filter_list_items()
     )
 
     arc_list_col = ft.Column(spacing=4, scroll=ft.ScrollMode.AUTO, expand=True)
 
-    def select_arc(arc_name):
-        nonlocal selected_arc
-        selected_arc = arc_name
-        active_arc_text.value = selected_arc if selected_arc else "Semua Arc"
-        build_arc_list_items()
-        apply_filters()
-        close_arc_menu()
+    def select_filter(category, item_value):
+        nonlocal selected_arc, selected_df, selected_race
+        if category == "arcs":
+            selected_arc = item_value
+        elif category == "devil_fruit":
+            selected_df = item_value
+        elif category == "race":
+            selected_race = item_value
 
-    def build_arc_list_items():
+        update_active_filter_display()
+        build_filter_list_items()
+        apply_filters()
+
+    def make_filter_item(title, count, is_selected, on_click_fn, icon=ft.Icons.AUTO_AWESOME_ROUNDED, badge_label=None, badge_color=ACCENT):
+        title_controls = [
+            ft.Text(
+                title,
+                size=13,
+                weight=ft.FontWeight.BOLD if is_selected else ft.FontWeight.W_500,
+                color=ACCENT if is_selected else get_text_main(),
+                overflow=ft.TextOverflow.ELLIPSIS,
+                max_lines=1
+            )
+        ]
+        if badge_label:
+            title_controls.append(
+                ft.Container(
+                    content=ft.Text(badge_label, size=9, color=ft.Colors.WHITE, weight=ft.FontWeight.BOLD),
+                    bgcolor=badge_color,
+                    padding=ft.Padding(6, 2, 6, 2),
+                    border_radius=10
+                )
+            )
+
+        return ft.Container(
+            content=ft.Row([
+                ft.Container(
+                    content=ft.Icon(
+                        icon,
+                        size=16,
+                        color=ACCENT if is_selected else get_text_muted()
+                    ),
+                    width=32,
+                    height=32,
+                    border_radius=8,
+                    bgcolor=ft.Colors.with_opacity(0.15, ACCENT) if is_selected else (ft.Colors.with_opacity(0.06, ft.Colors.WHITE) if page.theme_mode == ft.ThemeMode.DARK else ft.Colors.BLACK_12),
+                    alignment=ft.Alignment.CENTER
+                ),
+                ft.Column([
+                    ft.Row(title_controls, spacing=6, vertical_alignment=ft.CrossAxisAlignment.CENTER),
+                    ft.Text(f"{count} karakter", size=10, color=get_text_muted())
+                ], spacing=2, expand=True),
+                ft.Icon(ft.Icons.CHECK_ROUNDED, color=ACCENT, size=16, visible=is_selected)
+            ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN, vertical_alignment=ft.CrossAxisAlignment.CENTER),
+            bgcolor=ft.Colors.with_opacity(0.12, ACCENT) if is_selected else ft.Colors.TRANSPARENT,
+            border=ft.Border.all(1, ft.Colors.with_opacity(0.3, ACCENT) if is_selected else ft.Colors.TRANSPARENT),
+            border_radius=12,
+            padding=ft.Padding(10, 8, 10, 8),
+            on_click=on_click_fn,
+            animate=ft.Animation(150, ft.AnimationCurve.EASE_OUT)
+        )
+
+    def build_filter_list_items():
         arc_list_col.controls.clear()
         search_filter = (arc_search_input.value or "").strip().lower()
 
-        # Item 0: All Arcs
-        if not search_filter or "semua" in search_filter or "all" in search_filter:
-            is_all_selected = selected_arc is None
-            all_item = ft.Container(
-                content=ft.Row([
-                    ft.Container(
-                        content=ft.Icon(
-                            ft.Icons.PUBLIC_ROUNDED,
-                            size=16,
-                            color=ACCENT if is_all_selected else get_text_muted()
-                        ),
-                        width=32,
-                        height=32,
-                        border_radius=8,
-                        bgcolor=ft.Colors.with_opacity(0.15, ACCENT) if is_all_selected else (ft.Colors.with_opacity(0.06, ft.Colors.WHITE) if page.theme_mode == ft.ThemeMode.DARK else ft.Colors.BLACK_12),
-                        alignment=ft.Alignment.CENTER
-                    ),
-                    ft.Column([
-                        ft.Text("Semua Arc", size=13, weight=ft.FontWeight.BOLD if is_all_selected else ft.FontWeight.W_500, color=ACCENT if is_all_selected else get_text_main()),
-                        ft.Text(f"{len(all_characters)} karakter", size=10, color=get_text_muted())
-                    ], spacing=1, expand=True),
-                    ft.Icon(ft.Icons.CHECK_ROUNDED, color=ACCENT, size=16, visible=is_all_selected)
-                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN, vertical_alignment=ft.CrossAxisAlignment.CENTER),
-                bgcolor=ft.Colors.with_opacity(0.12, ACCENT) if is_all_selected else ft.Colors.TRANSPARENT,
-                border=ft.Border.all(1, ft.Colors.with_opacity(0.3, ACCENT) if is_all_selected else ft.Colors.TRANSPARENT),
-                border_radius=12,
-                padding=ft.Padding(10, 8, 10, 8),
-                on_click=lambda e: select_arc(None),
-                animate=ft.Animation(150, ft.AnimationCurve.EASE_OUT)
-            )
-            arc_list_col.controls.append(all_item)
+        if selected_category == "arcs":
+            # Base pool contextual to active devil_fruit and race
+            base_pool = [
+                c for c in all_characters
+                if (not selected_race or (c.get('race') or 'Unknown').strip() == selected_race)
+                and matches_df_filter(c, selected_df)
+            ]
+            dynamic_arc_counts = Counter(get_story_arc(c.get('first_appearance_arc')) for c in base_pool)
 
-        for arc in ARC_ORDER:
-            if search_filter and search_filter not in arc.lower():
-                continue
-            count = arc_counts.get(arc, 0)
-            is_selected = selected_arc == arc
-            item = ft.Container(
-                content=ft.Row([
+            # Item 0: All Arcs
+            if not search_filter or "semua" in search_filter or "all" in search_filter:
+                is_all_selected = selected_arc is None
+                arc_list_col.controls.append(
+                    make_filter_item(
+                        "Semua Arc",
+                        len(base_pool),
+                        is_all_selected,
+                        lambda e: select_filter("arcs", None),
+                        icon=ft.Icons.PUBLIC_ROUNDED
+                    )
+                )
+
+            for arc in ARC_ORDER:
+                if search_filter and search_filter not in arc.lower():
+                    continue
+                count = dynamic_arc_counts.get(arc, 0)
+                is_selected = selected_arc == arc
+                arc_list_col.controls.append(
+                    make_filter_item(
+                        arc,
+                        count,
+                        is_selected,
+                        lambda e, a=arc: select_filter("arcs", a),
+                        icon=ft.Icons.AUTO_AWESOME_ROUNDED
+                    )
+                )
+
+        elif selected_category == "devil_fruit":
+            # Base pool contextual to active arc and race
+            base_pool = [
+                c for c in all_characters
+                if (not selected_arc or get_story_arc(c.get('first_appearance_arc')) == selected_arc)
+                and (not selected_race or (c.get('race') or 'Unknown').strip() == selected_race)
+            ]
+
+            # Item 0: All Fruits
+            if not search_filter or "semua" in search_filter or "all" in search_filter:
+                is_all_selected = selected_df is None
+                arc_list_col.controls.append(
+                    make_filter_item(
+                        "Semua Buah Iblis",
+                        len(base_pool),
+                        is_all_selected,
+                        lambda e: select_filter("devil_fruit", None),
+                        icon=ft.Icons.PUBLIC_ROUNDED
+                    )
+                )
+
+            # Main Fruit Types
+            fruit_types = [
+                ("Zoan", sum(1 for c in base_pool if matches_df_filter(c, 'Zoan')), ft.Icons.PETS_ROUNDED),
+                ("Paramecia", sum(1 for c in base_pool if matches_df_filter(c, 'Paramecia')), ft.Icons.AUTO_AWESOME_ROUNDED),
+                ("Logia", sum(1 for c in base_pool if matches_df_filter(c, 'Logia')), ft.Icons.LOCAL_FIRE_DEPARTMENT_ROUNDED),
+                ("None", sum(1 for c in base_pool if matches_df_filter(c, 'None')), ft.Icons.SHIELD_OUTLINED),
+            ]
+
+            for key, count, icon in fruit_types:
+                title = "Tanpa Buah Iblis" if key == "None" else f"Tipe {key}"
+                if search_filter and (search_filter not in key.lower() and search_filter not in title.lower()):
+                    continue
+                is_selected = selected_df == key
+                arc_list_col.controls.append(
+                    make_filter_item(
+                        title,
+                        count,
+                        is_selected,
+                        lambda e, k=key: select_filter("devil_fruit", k),
+                        icon=icon
+                    )
+                )
+
+            # Top specific fruits or matching fruits in base_pool
+            df_pool_fruits = []
+            for c in base_pool:
+                raw = c.get('devil_fruit')
+                items = raw if isinstance(raw, list) else ([raw] if raw else [])
+                for it in items:
+                    clean = re.sub(r'\s*\([^)]*awakened[^)]*\)', '', str(it), flags=re.IGNORECASE).strip()
+                    if clean and clean.lower() not in ['none', 'unknown']:
+                        df_pool_fruits.append(clean)
+            dynamic_df_fruit_counts = Counter(df_pool_fruits)
+
+            sorted_fruits = sorted(dynamic_df_fruit_counts.items(), key=lambda x: (-x[1], x[0]))
+            matching_fruits = [
+                (fn, cnt) for fn, cnt in sorted_fruits
+                if not search_filter or search_filter in fn.lower()
+            ]
+
+            if matching_fruits:
+                arc_list_col.controls.append(
                     ft.Container(
-                        content=ft.Icon(
-                            ft.Icons.AUTO_AWESOME_OUTLINED if not is_selected else ft.Icons.AUTO_AWESOME_ROUNDED,
-                            size=16,
-                            color=ACCENT if is_selected else get_text_muted()
-                        ),
-                        width=32,
-                        height=32,
-                        border_radius=8,
-                        bgcolor=ft.Colors.with_opacity(0.15, ACCENT) if is_selected else (ft.Colors.with_opacity(0.06, ft.Colors.WHITE) if page.theme_mode == ft.ThemeMode.DARK else ft.Colors.BLACK_12),
-                        alignment=ft.Alignment.CENTER
-                    ),
-                    ft.Column([
-                        ft.Text(arc, size=13, weight=ft.FontWeight.BOLD if is_selected else ft.FontWeight.W_500, color=ACCENT if is_selected else get_text_main()),
-                        ft.Text(f"{count} karakter", size=10, color=get_text_muted())
-                    ], spacing=1, expand=True),
-                    ft.Icon(ft.Icons.CHECK_ROUNDED, color=ACCENT, size=16, visible=is_selected)
-                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN, vertical_alignment=ft.CrossAxisAlignment.CENTER),
-                bgcolor=ft.Colors.with_opacity(0.12, ACCENT) if is_selected else ft.Colors.TRANSPARENT,
-                border=ft.Border.all(1, ft.Colors.with_opacity(0.3, ACCENT) if is_selected else ft.Colors.TRANSPARENT),
-                border_radius=12,
-                padding=ft.Padding(10, 8, 10, 8),
-                on_click=lambda e, a=arc: select_arc(a),
-                animate=ft.Animation(150, ft.AnimationCurve.EASE_OUT)
-            )
-            arc_list_col.controls.append(item)
+                        content=ft.Text("BUAH SPESIFIK", size=10, weight=ft.FontWeight.BOLD, color=get_text_muted()),
+                        padding=ft.Padding(6, 8, 6, 2)
+                    )
+                )
+                for fn, cnt in matching_fruits[:50]:
+                    is_selected = selected_df == fn
+                    f_type = get_devil_fruit_type(fn)
+                    arc_list_col.controls.append(
+                        make_filter_item(
+                            fn,
+                            cnt,
+                            is_selected,
+                            lambda e, f_name=fn: select_filter("devil_fruit", f_name),
+                            icon=ft.Icons.AUTO_AWESOME_OUTLINED,
+                            badge_label=f_type.upper() if f_type else None
+                        )
+                    )
+
+        elif selected_category == "race":
+            # Base pool contextual to active arc and devil_fruit
+            base_pool = [
+                c for c in all_characters
+                if (not selected_arc or get_story_arc(c.get('first_appearance_arc')) == selected_arc)
+                and matches_df_filter(c, selected_df)
+            ]
+            dynamic_race_counts = Counter((c.get('race') or 'Unknown').strip() for c in base_pool)
+
+            # Item 0: All Races
+            if not search_filter or "semua" in search_filter or "all" in search_filter:
+                is_all_selected = selected_race is None
+                arc_list_col.controls.append(
+                    make_filter_item(
+                        "Semua Ras",
+                        len(base_pool),
+                        is_all_selected,
+                        lambda e: select_filter("race", None),
+                        icon=ft.Icons.PUBLIC_ROUNDED
+                    )
+                )
+
+            all_known_races = sorted(race_counts.keys())
+            sorted_races = sorted(all_known_races, key=lambda r: (-dynamic_race_counts.get(r, 0), r))
+
+            for r_name in sorted_races:
+                if not r_name or r_name == "Unknown":
+                    continue
+                count = dynamic_race_counts.get(r_name, 0)
+                if search_filter and search_filter not in r_name.lower():
+                    continue
+                is_selected = selected_race == r_name
+                arc_list_col.controls.append(
+                    make_filter_item(
+                        r_name,
+                        count,
+                        is_selected,
+                        lambda e, r=r_name: select_filter("race", r),
+                        icon=ft.Icons.PERSON_ROUNDED
+                    )
+                )
 
         if arc_list_col.page:
             arc_list_col.update()
@@ -1071,32 +1706,36 @@ def main(page: ft.Page):
     arc_menu_card = ft.Container(
         content=ft.Column([
             ft.Container(
-                content=ft.Row([
-                    ft.Column([
+                content=ft.Column([
+                    ft.Row([
                         ft.Text("FILTER KARAKTER", size=10, weight=ft.FontWeight.BOLD, color=get_text_muted()),
                         ft.Row([
-                            ft.Text("Story Arcs", size=16, weight=ft.FontWeight.BOLD, color=get_text_main()),
-                            ft.Container(
-                                content=active_arc_text,
-                                bgcolor=ft.Colors.with_opacity(0.12, ACCENT),
-                                padding=ft.Padding(8, 2, 8, 2),
-                                border_radius=10,
-                                border=ft.Border.all(1, ft.Colors.with_opacity(0.3, ACCENT))
+                            ft.IconButton(
+                                icon=ft.Icons.RESTART_ALT_ROUNDED,
+                                icon_size=18,
+                                icon_color=get_text_muted(),
+                                tooltip="Clear Suggest",
+                                on_click=lambda e: clear_all_filters()
+                            ),
+                            ft.IconButton(
+                                icon=ft.Icons.CLOSE,
+                                icon_size=18,
+                                icon_color=get_text_muted(),
+                                tooltip="Tutup",
+                                on_click=lambda e: close_arc_menu()
                             )
-                        ], spacing=8, alignment=ft.CrossAxisAlignment.CENTER)
-                    ], spacing=2, expand=True),
-                    ft.IconButton(
-                        icon=ft.Icons.CLOSE,
-                        icon_size=18,
-                        icon_color=get_text_muted(),
-                        on_click=lambda e: close_arc_menu()
-                    )
-                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-                padding=ft.Padding(16, 14, 16, 8)
+                        ], spacing=4, alignment=ft.CrossAxisAlignment.CENTER)
+                    ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN, vertical_alignment=ft.CrossAxisAlignment.CENTER),
+                    ft.Row([
+                        category_dropdown,
+                        active_filter_container
+                    ], spacing=10, alignment=ft.CrossAxisAlignment.CENTER)
+                ], spacing=12),
+                padding=ft.Padding(16, 14, 16, 14)
             ),
             ft.Container(
                 content=arc_search_input,
-                padding=ft.Padding(14, 0, 14, 8)
+                padding=ft.Padding(14, 10, 14, 14)
             ),
             ft.Container(
                 height=1,
@@ -1108,8 +1747,8 @@ def main(page: ft.Page):
                 padding=ft.Padding(10, 6, 10, 10)
             )
         ], spacing=0),
-        width=320,
-        height=450,
+        width=340,
+        height=480,
         border_radius=22,
         bgcolor=get_card_bg(),
         border=ft.Border.all(1, ft.Colors.with_opacity(0.3, ACCENT) if page.theme_mode == ft.ThemeMode.DARK else ft.Colors.with_opacity(0.4, ACCENT)),
@@ -1143,7 +1782,30 @@ def main(page: ft.Page):
             pagination_row.visible = True
 
             arc_counts = Counter(get_story_arc(c.get('first_appearance_arc')) for c in all_characters)
-            build_arc_list_items()
+            race_counts = Counter((c.get('race') or 'Unknown').strip() for c in all_characters)
+
+            zoan_c = sum(1 for c in all_characters if matches_df_filter(c, 'Zoan'))
+            paramecia_c = sum(1 for c in all_characters if matches_df_filter(c, 'Paramecia'))
+            logia_c = sum(1 for c in all_characters if matches_df_filter(c, 'Logia'))
+            no_fruit_c = sum(1 for c in all_characters if matches_df_filter(c, 'None'))
+            df_type_counts = {
+                'Zoan': zoan_c,
+                'Paramecia': paramecia_c,
+                'Logia': logia_c,
+                'None': no_fruit_c
+            }
+
+            f_list = []
+            for c in all_characters:
+                raw = c.get('devil_fruit')
+                items = raw if isinstance(raw, list) else ([raw] if raw else [])
+                for it in items:
+                    clean = re.sub(r'\s*\([^)]*awakened[^)]*\)', '', str(it), flags=re.IGNORECASE).strip()
+                    if clean and clean.lower() not in ['none', 'unknown']:
+                        f_list.append(clean)
+            df_fruit_counts = Counter(f_list)
+
+            build_filter_list_items()
 
             # Trigger resize once to layout columns
             on_page_resize(None)
