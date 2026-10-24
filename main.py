@@ -127,10 +127,7 @@ def main(page: ft.Page):
     page.scroll = None  # Using fixed page, scrolling inner content
 
 
-    # Enable keyboard event to intercept Android back button (Escape)
-    def on_keyboard(e: ft.KeyboardEvent):
-        pass # we'll handle this in on_dismiss instead
-    page.on_keyboard_event = on_keyboard
+
 
     page.fonts = {
         "Outfit": "https://raw.githubusercontent.com/google/fonts/main/ofl/outfit/Outfit%5Bwght%5D.ttf"
@@ -553,12 +550,6 @@ def main(page: ft.Page):
             await asyncio.sleep(0.1)
             open_modal(current_char)
 
-    def on_view_pop(e):
-        if len(page.views) > 1:
-            page.views.pop()
-            page.update()
-
-    page.on_view_pop = on_view_pop
 
     def on_lifecycle(e):
         if e.data == ft.AppLifecycleState.RESUME.name and is_locked:
@@ -1955,6 +1946,115 @@ def main(page: ft.Page):
     ], expand=True)
 
     page.add(main_stack)
+
+    last_back_time = 0.0
+
+    def show_exit_dialog():
+        def cancel_exit(e):
+            page.pop_dialog()
+
+        async def confirm_exit(e):
+            page.pop_dialog()
+            try:
+                await page.window.close()
+            except:
+                pass
+            try:
+                await page.window.destroy()
+            except:
+                pass
+            import os
+            os._exit(0)
+
+        exit_dlg = ft.AlertDialog(
+            title=ft.Row([
+                ft.Icon(ft.Icons.EXIT_TO_APP_ROUNDED, color=ACCENT, size=24),
+                ft.Text("Exit App", size=18, weight=ft.FontWeight.BOLD, color=get_text_main())
+            ], spacing=10),
+            content=ft.Text(
+                "Are you sure you want to exit the application?",
+                size=14,
+                color=get_text_muted()
+            ),
+            shape=ft.RoundedRectangleBorder(radius=18),
+            bgcolor=get_card_bg(),
+            actions=[
+                ft.TextButton(
+                    "Cancel",
+                    on_click=cancel_exit,
+                    style=ft.ButtonStyle(color=get_text_muted())
+                ),
+                ft.Button(
+                    "Exit",
+                    on_click=confirm_exit,
+                    style=ft.ButtonStyle(
+                        bgcolor=ft.Colors.RED_600,
+                        color=ft.Colors.WHITE,
+                        shape=ft.RoundedRectangleBorder(radius=10),
+                        padding=ft.Padding(16, 8, 16, 8)
+                    )
+                ),
+            ],
+            actions_alignment=ft.MainAxisAlignment.END
+        )
+        page.show_dialog(exit_dlg)
+
+    def handle_back_press():
+        nonlocal last_back_time
+        import time
+        now = time.time()
+        if now - last_back_time < 0.35:
+            return
+        last_back_time = now
+
+        # 1. If floating category/arc filter menu is open, close it
+        if arc_menu_open:
+            close_arc_menu()
+            return
+
+        # 2. If fullscreen locked view is open on top, close it
+        if len(page.views) > 1 and page.views[-1].route == "/fullscreen":
+            page.run_task(close_fs, None)
+            return
+
+        # 3. If any modal dialog is currently open, close it
+        open_dialogs = [d for d in getattr(page, '_dialogs', ft.Column()).controls if getattr(d, 'open', False)]
+        if open_dialogs:
+            page.pop_dialog()
+            return
+
+        # 4. If at root main page, show confirmation exit dialog
+        show_exit_dialog()
+
+    def on_keyboard(e: ft.KeyboardEvent):
+        if e.key and e.key.lower() in ["escape", "back"]:
+            handle_back_press()
+
+    def on_view_pop(e):
+        if len(page.views) > 1:
+            page.views.pop()
+            page.update()
+        else:
+            handle_back_press()
+
+    page.on_keyboard_event = on_keyboard
+    page.on_view_pop = on_view_pop
+
+    def on_window_event(e):
+        if e.data == "close":
+            import os
+            os._exit(0)
+
+    def on_disconnect(e):
+        import os
+        os._exit(0)
+
+    page.window.on_event = on_window_event
+    page.on_disconnect = on_disconnect
+
+    if len(page.views) > 0:
+        page.views[0].can_pop = False
+        page.views[0].on_confirm_pop = lambda e: handle_back_press()
 
     try:
         load_devil_fruits_types()
