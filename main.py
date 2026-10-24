@@ -304,14 +304,151 @@ def main(page: ft.Page):
     df_type_counts = {}
     df_fruit_counts = {}
 
+    GAME_MODE_HARD_PATTERNS = {
+        'pandaman', 'tomato gang', 'minatomo', 'sam', 'batchee', 'unigaro',
+        'hattori', 'stronger', 'monster', 'eyelashes', 'hasami', 'camel',
+        'aegir', 'alvar', 'axel', 'bent', 'millet pine', 'moon isaac',
+        'seagull guns', 'sunbell', 'doringo', 'bonk punch', 'limejuice',
+        'bell-m'
+    }
+
+    # Curated characters assigned to Hard
+    GAME_MODE_HARD_EXACT = {
+        'nezumi', 'mozu', 'kurozumi higurashi', 'genzo', 'chaka', 'yokozuna',
+        'banchina', 'attach', 'blade', 'bourbon jr.', 'buchi',
+        'chadros higelyges [brownbeard]', 'dago', 'dalton', 'ganzui', 'ganryu',
+        'gambia', 'hiramera', 'ida', 'ishilly', 'ivan x', 'keith',
+        'kashigami', "kashigami's child", 'kelly funk', 'kiku',
+        'kentauros', 'kinoko', 'kiev', 'kiwi', 'macro', 'marlon', 'matsuge',
+        'ninjin', 'masked deuce', 'moda', 'masira', 'milky', 'nojiko', 'ohm',
+        'ochoku', 'onigumo', 'part', 'petermoo', 'potato', 'portgas d. rouge',
+        'seamars', 'seira', 'scotch [yeti cool brother]', 'sham', 'shin detamaruka',
+        'shoujou', 'spandine', 'stomp', 'tom', 'tamanegi', 'tansui', 'taro',
+        'terracotta', 'tokijiro', 'tokikake [chaton]', 'umit', 'wyper', 'wire',
+        'yomo', 'yamakaji', 'totts', 'urban', 'very good', 'wolf', 'wanda',
+        'strawberry', 'suleiman', 'tamagon', 'tama', 'kurozumi tama', 'sora',
+        'squard', 'shishilian', 'shura', 'skaldi', 'stainless', 'ronja',
+        'ryunosuke', 'mero', 'kumadori', 'kumadori yamanbako', 'marguerite',
+        'lulis', 'kalgara', 'leonero', 'john', 'roddy', 'gustav', 'gyaro',
+        'hikoichi', 'higuma', 'gyogyo', 'fillonce', 'footbianco', 'fullbody',
+        'gedatsu', 'gin', 'giovanni', 'goro', 'chouchou', 'dagny', 'concelot',
+        'comil', 'cowboy', 'draw', 'emil', 'erik', 'capone pez',
+        'charlotte newgo', 'charlotte fuyumeg', 'charlotte akimeg', 'charlotte allmeg',
+        'charlotte nutmeg', 'charlotte harumeg', 'charlotte newji', 'charlotte newsan',
+        'charlotte newshi', 'charlotte newichi', 'charlotte mobile', 'chew',
+        'blackback [bb]', 'battaman', 'bluejam', 'bomba', 'boodle', 'adele',
+        'bobbin', 'atmos', 'bian', 'hiriluk', 'hototogisu', 'igaram', 'hongo',
+        'kashii', 'kabu', 'kairen', 'kong', 'kyo [silver axe]', 'kujaku',
+        'pound', 'porchemy', 'sarquiss', 'tamachibi', 't bone',
+        'demalo black', 'yarisugi', 'zambai',
+        'carmel', 'rock [yeti cool brother]', 'paulie', 'tilestone',
+        'doberman', 'ylva', 'vander decken', 'vander decken ix', 'yorki', 'olav'
+    }
+
+    # Curated exact 100 characters for Easy Mode
+    GAME_MODE_EASY_EXACT = {
+        # 1-10 Topi Jerami
+        'monkey d. luffy', 'roronoa zoro', 'nami', 'usopp', 'sanji',
+        'tony tony chopper', 'nico robin', 'cutty flam [franky]', 'brook', 'jinbe',
+        # 11-20
+        'gol d. roger', 'edward newgate [whitebeard]', 'shanks', 'kaidou',
+        'charlotte linlin [big mom]', 'marshall d. teach [blackbeard]', 'buggy',
+        'portgas d. ace', 'sabo', 'monkey d. dragon',
+        # 21-30
+        'monkey d. garp', 'silvers rayleigh', 'kouzuki oden', 'sengoku',
+        'sakazuki [akainu]', 'kuzan [aokiji]', 'borsalino [kizaru]',
+        'issho [fujitora]', 'aramaki [ryokugyu]', 'dracule mihawk',
+        # 31-40
+        'crocodile', 'boa hancock', 'bartholomew kuma', 'gecko moria [kouzuki moria]',
+        'donquixote doflamingo', 'trafalgar d. water law', 'eustass kid', 'killer',
+        'loki', 'jewelry bonney',
+        # 41-50
+        'basil hawkins', 'scratchmen apoo', 'x drake', 'smoker', 'koby',
+        'arber [king]', 'scien [queen]', 'jack', 'charlotte katakuri', 'charlotte cracker',
+        # 51-60
+        'charlotte smoothie', 'charlotte perospero', 'polo marco', 'vegapunk',
+        'yasopp', 'jaygarcia saturn', 'jesus burgess', 'van augur', 'enel', 'rob lucci',
+        # 61-70
+        'kaku', 'caesar clown', 'magellan', 'alvida',
+        'bentham (bon clay) [mr. 2]', 'bepo', 'nefertari vivi', 'rebecca',
+        'bartolomeo', 'perona',
+        # 71-80
+        'shirahoshi', 'yamato', 'charlotte pudding', 'vinsmoke reiju', 'makino',
+        'koala', 'kureha', 'nerona imu', 'arlong', 'carrot',
+        # 81-90
+        'kinemon', 'kouzuki momonosuke', 'tashigi', 'bellamy', 'cavendish',
+        'emporio ivankov', 'helmeppo', 'baby 5', 'joy boy', 'sugar',
+        # 91-100
+        'diamante', 'pica', 'figarland garling', 'dellinger', 'sai',
+        'hajrudin', 'davy d. xebec [rocks]', 'scopper gaban', 'caribou'
+    }
+
+    GAME_MODE_MEDIUM_KEYWORDS = [
+        # Early & Flashback characters
+        'kuina', 'kaya', 'zeff', 'saul',
+        'fisher tiger', 'otohime', 'noland', 'yasuie', 'toki', 'hyogoro', 'hyougoro',
+        'clover',
+        # Egghead & Vegapunk Satellites
+        'edison', 'shaka', 'lilith', 'pythagoras', 'atlas', 'york',
+        # Yonko Commanders & Key Pirates
+        'jozu', 'vista', 'shiryu', 'doc q', 'laffitte', 'beckman', 'lucky roux',
+        # Grand Fleet & Key Arc Allies
+        'leo', 'ideo', 'kyros', 'pedro', 'shinobu',
+        # Akazaya 9 & Wano
+        'denjiro', 'raizo', 'kikunojo', 'kanjuro', 'kawamatsu', 'nekomamushi', 'inuarashi', 'ashura doji', 'izo',
+        # CP9 / CP0 & World Govt
+        'jabra', 'blueno', 'kalifa', 'fukurou', 'spandam', 'stussy',
+        'mars', 'warcury', 'nusjuro', 'ju peter',
+        # Shichibukai Subordinates & Family
+        'galdino', 'mr. 3', 'daz bonez', 'mr. 1', 'absalom',
+        'trebol', 'vergo', 'monet', 'ichiji', 'niji', 'yonji', 'judge',
+        # Marines
+        'hina', 'sentomaru', 'momonga',
+        # Arc Villains & Specific requested Medium characters
+        'kuro', 'morgan', 'krieg', 'wapol', 'hody jones',
+        'flampe', 'br\xfbl\xe9e', 'brulee', 'building snake', 'batman'
+    ]
+
     def get_character_game_mode(c):
-        journey_count = len(c.get('journey') or [])
-        if journey_count >= 6:
-            return "Easy"
-        elif journey_count >= 2:
-            return "Medium"
-        else:
+        name = (c.get('name') or '').strip().lower()
+        if not name:
             return "Hard"
+
+        # 1. Exact curated 100 characters in Easy
+        if name in GAME_MODE_EASY_EXACT or ('pink' in name and ('se' in name or name == 'pink')):
+            return "Easy"
+
+        # 2. Hard check (curated Hard characters + hard patterns)
+        if name in GAME_MODE_HARD_EXACT or any(hp in name for hp in GAME_MODE_HARD_PATTERNS):
+            return "Hard"
+
+        # 3. Medium keywords: Other notable characters & commanders
+        for mk in GAME_MODE_MEDIUM_KEYWORDS:
+            if mk in name:
+                if mk == 'kuro' and name not in ['kuro', 'captain kuro']:
+                    continue
+                if mk == 'morgan' and name != 'morgan':
+                    continue
+                if mk == 'krieg' and 'krieg' not in name:
+                    continue
+                return "Medium"
+
+        # 4. Fallback scoring based on data richness
+        j_count = min(len(c.get('journey') or []), 15)
+        rel_count = len(c.get('relationships') or [])
+        has_bounty = bool(c.get('bounty'))
+        has_df = bool(c.get('devil_fruit'))
+        has_ep = bool(c.get('epithet'))
+
+        if j_count <= 1 and not has_bounty:
+            return "Medium" if rel_count >= 8 else "Hard"
+
+        score = (j_count * 2.0) + (rel_count * 1.5)
+        if has_bounty: score += 5
+        if has_df: score += 4
+        if has_ep: score += 3
+
+        return "Medium" if score >= 12 else "Hard"
 
     def matches_game_mode_filter(c, target):
         if not target:
@@ -1798,7 +1935,24 @@ def main(page: ft.Page):
         load_devil_fruits_types()
         resp = requests.get(API_URL)
         if resp.status_code == 200:
-            all_characters = resp.json()
+            raw_characters = resp.json()
+            unique_chars = {}
+            for c in raw_characters:
+                raw_name = c.get('name') or ''
+                name = raw_name.strip()
+                if not name:
+                    continue
+                c['name'] = name
+                key = name.lower()
+                if key not in unique_chars:
+                    unique_chars[key] = c
+                else:
+                    old_c = unique_chars[key]
+                    old_r = (len(old_c.get('journey') or []) * 2) + len(old_c.get('relationships') or []) + (5 if old_c.get('bounty') else 0)
+                    new_r = (len(c.get('journey') or []) * 2) + len(c.get('relationships') or []) + (5 if c.get('bounty') else 0)
+                    if new_r > old_r:
+                        unique_chars[key] = c
+            all_characters = list(unique_chars.values())
             filtered_characters = all_characters
             loading_container.visible = False
             pagination_row.visible = True
