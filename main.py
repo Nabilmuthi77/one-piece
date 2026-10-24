@@ -1954,6 +1954,11 @@ def main(page: ft.Page):
             page.pop_dialog()
 
         async def confirm_exit(e):
+            import os
+            if page.platform in [ft.PagePlatform.ANDROID, ft.PagePlatform.IOS]:
+                # On mobile, exit instantly without awaiting desktop window RPCs that cause timeouts
+                os._exit(0)
+
             page.pop_dialog()
             try:
                 await page.window.close()
@@ -1963,7 +1968,6 @@ def main(page: ft.Page):
                 await page.window.destroy()
             except:
                 pass
-            import os
             os._exit(0)
 
         exit_dlg = ft.AlertDialog(
