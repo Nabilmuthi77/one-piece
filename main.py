@@ -338,11 +338,13 @@ def main(page: ft.Page):
         'charlotte newshi', 'charlotte newichi', 'charlotte mobile', 'chew',
         'blackback [bb]', 'battaman', 'bluejam', 'bomba', 'boodle', 'adele',
         'bobbin', 'atmos', 'bian', 'hiriluk', 'hototogisu', 'igaram', 'hongo',
-        'kashii', 'kabu', 'kairen', 'kong', 'kyo [silver axe]', 'kujaku',
+        'kabu', 'kairen', 'kong', 'kyo [silver axe]', 'kujaku',
         'pound', 'porchemy', 'sarquiss', 'tamachibi', 't bone',
         'demalo black', 'yarisugi', 'zambai',
         'carmel', 'rock [yeti cool brother]', 'paulie', 'tilestone',
-        'doberman', 'ylva', 'vander decken', 'vander decken ix', 'yorki', 'olav'
+        'doberman', 'ylva', 'vander decken', 'vander decken ix', 'yorki', 'olav',
+        'johanna', 'johana', 'ottoland', 'karin', 'maha',
+        'tosa', 'pell', 'mashikaku', 'kuroobi', 'guillotine', 'bjorn', 'piiman', 'pomsky', 'jabra'
     }
 
     # Curated exact 100 characters for Easy Mode
@@ -397,7 +399,7 @@ def main(page: ft.Page):
         # Akazaya 9 & Wano
         'denjiro', 'raizo', 'kikunojo', 'kanjuro', 'kawamatsu', 'nekomamushi', 'inuarashi', 'ashura doji', 'izo',
         # CP9 / CP0 & World Govt
-        'jabra', 'blueno', 'kalifa', 'fukurou', 'spandam', 'stussy',
+        'blueno', 'kalifa', 'fukurou', 'spandam', 'stussy',
         'mars', 'warcury', 'nusjuro', 'ju peter',
         # Shichibukai Subordinates & Family
         'galdino', 'mr. 3', 'daz bonez', 'mr. 1', 'absalom',
@@ -406,7 +408,7 @@ def main(page: ft.Page):
         'hina', 'sentomaru', 'momonga',
         # Arc Villains & Specific requested Medium characters
         'kuro', 'morgan', 'krieg', 'wapol', 'hody jones',
-        'flampe', 'br\xfbl\xe9e', 'brulee', 'building snake', 'batman'
+        'flampe', 'br\xfbl\xe9e', 'brulee', 'building snake', 'batman', 'kashii', 'nico olvia'
     ]
 
     def get_character_game_mode(c):
@@ -475,7 +477,7 @@ def main(page: ft.Page):
 
         for it in items:
             clean = re.sub(r'\s*\([^)]*awakened[^)]*\)', '', it, flags=re.IGNORECASE).strip()
-            if target.lower() in clean.lower():
+            if clean.lower() == target.lower():
                 return True
         return False
 
@@ -1719,9 +1721,10 @@ def main(page: ft.Page):
                 ("None", sum(1 for c in base_pool if matches_df_filter(c, 'None')), ft.Icons.SHIELD_OUTLINED),
             ]
 
+            clean_sf = re.sub(r'[\s\-_]+', '', search_filter)
             for key, count, icon in fruit_types:
                 title = "No Devil Fruit" if key == "None" else f"{key} Type"
-                if search_filter and (search_filter not in key.lower() and search_filter not in title.lower()):
+                if search_filter and (search_filter not in key.lower() and search_filter not in title.lower() and (not clean_sf or clean_sf not in re.sub(r'[\s\-_]+', '', title.lower()))):
                     continue
                 is_selected = selected_df == key
                 arc_list_col.controls.append(
@@ -1745,32 +1748,54 @@ def main(page: ft.Page):
                         df_pool_fruits.append(clean)
             dynamic_df_fruit_counts = Counter(df_pool_fruits)
 
-            sorted_fruits = sorted(dynamic_df_fruit_counts.items(), key=lambda x: (-x[1], x[0]))
-            matching_fruits = [
-                (fn, cnt) for fn, cnt in sorted_fruits
-                if not search_filter or search_filter in fn.lower()
-            ]
+            if search_filter:
+                clean_sf = re.sub(r'[\s\-_]+', '', search_filter)
+                sorted_fruits = sorted(dynamic_df_fruit_counts.items(), key=lambda x: (-x[1], x[0]))
+                matching_fruits = [
+                    (fn, cnt) for fn, cnt in sorted_fruits
+                    if search_filter in fn.lower() or (clean_sf and clean_sf in re.sub(r'[\s\-_]+', '', fn.lower()))
+                ]
 
-            if matching_fruits:
+                if matching_fruits:
+                    arc_list_col.controls.append(
+                        ft.Container(
+                            content=ft.Text("SPECIFIC FRUITS", size=10, weight=ft.FontWeight.BOLD, color=get_text_muted()),
+                            padding=ft.Padding(6, 8, 6, 2)
+                        )
+                    )
+                    for fn, cnt in matching_fruits[:50]:
+                        is_selected = selected_df == fn
+                        f_type = get_devil_fruit_type(fn)
+                        arc_list_col.controls.append(
+                            make_filter_item(
+                                fn,
+                                cnt,
+                                is_selected,
+                                lambda e, f_name=fn: select_filter("devil_fruit", f_name),
+                                icon=ft.Icons.AUTO_AWESOME_OUTLINED,
+                                badge_label=f_type.upper() if f_type else None
+                            )
+                        )
+            elif selected_df and selected_df not in ['Zoan', 'Paramecia', 'Logia', 'None']:
+                # Show active specific fruit if selected so user can see it without searching
+                f_type = get_devil_fruit_type(selected_df)
+                cnt = dynamic_df_fruit_counts.get(selected_df, 0)
                 arc_list_col.controls.append(
                     ft.Container(
-                        content=ft.Text("SPECIFIC FRUITS", size=10, weight=ft.FontWeight.BOLD, color=get_text_muted()),
+                        content=ft.Text("ACTIVE SPECIFIC FRUIT", size=10, weight=ft.FontWeight.BOLD, color=get_text_muted()),
                         padding=ft.Padding(6, 8, 6, 2)
                     )
                 )
-                for fn, cnt in matching_fruits[:50]:
-                    is_selected = selected_df == fn
-                    f_type = get_devil_fruit_type(fn)
-                    arc_list_col.controls.append(
-                        make_filter_item(
-                            fn,
-                            cnt,
-                            is_selected,
-                            lambda e, f_name=fn: select_filter("devil_fruit", f_name),
-                            icon=ft.Icons.AUTO_AWESOME_OUTLINED,
-                            badge_label=f_type.upper() if f_type else None
-                        )
+                arc_list_col.controls.append(
+                    make_filter_item(
+                        selected_df,
+                        cnt,
+                        True,
+                        lambda e, f_name=selected_df: select_filter("devil_fruit", f_name),
+                        icon=ft.Icons.AUTO_AWESOME_OUTLINED,
+                        badge_label=f_type.upper() if f_type else None
                     )
+                )
 
         elif selected_category == "race":
             # Base pool contextual to active arc, devil_fruit, and game_mode
