@@ -32,7 +32,7 @@ Yang udah bener error nya :
 catatan keras ke 1 : jangan git add, commit dan push tanpa disuruh.
 pengembangan aplikasi masih jauh...
 
-Catatan Keras ke 2 : jangan ubah kode apapun tanpa persetujuan dari saya dan jangan ubah kode apapun yang sudah benar.
+Catatan Keras ke 2 : jangan ubah kode apapun yang sudah benar.
 
 Yang masih error :
 - (Belum ada dan jangan sampe ada)

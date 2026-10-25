@@ -5,7 +5,7 @@
                     <style>
                         .box5631 {
                             transform-origin: 50% 50%;
-                            fill: #0ea5e9;
+                            fill: #0D9488;
                         }
 
                         @keyframes moveBox5631-1 {

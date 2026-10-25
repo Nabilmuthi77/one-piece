@@ -1,8 +1,8 @@
-name: Build Flet APK
+name: Build One Piece Android APK
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
   workflow_dispatch:
 
 jobs:
@@ -19,8 +19,6 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-
-
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -35,13 +33,29 @@ jobs:
           echo "org.gradle.parallel=false" >> ~/.gradle/gradle.properties
           echo "org.gradle.workers.max=1" >> ~/.gradle/gradle.properties
 
+      - name: Verify Release Keystore
+        run: |
+          keytool -list -v -keystore .github/keystore/release.jks -storepass onepiecekey2026
+
       - name: Build APK with Flet
         env:
           GRADLE_OPTS: "-Dorg.gradle.parallel=false -Dorg.gradle.workers.max=1"
-        run: flet build apk --product "One Piece" --arch arm64-v8a --yes -vv
+        run: >-
+          flet build apk
+          --product "One Piece"
+          --org "com.onepiece"
+          --arch arm64-v8a
+          --build-version "1.0.1"
+          --build-number ${{ github.run_number }}
+          --android-signing-key-store "${{ github.workspace }}/.github/keystore/release.jks"
+          --android-signing-key-store-password "onepiecekey2026"
+          --android-signing-key-password "onepiecekey2026"
+          --android-signing-key-alias "onepiece"
+          --yes -vv
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
+          name: one-piece-android-apk
           path: build/apk/**/*.apk
+          if-no-files-found: error
