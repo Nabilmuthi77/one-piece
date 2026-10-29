@@ -12,7 +12,7 @@ from utils.theme import (
 )
 from utils.helpers import (
     load_devil_fruits_types, get_story_arc,
-    matches_df_filter, matches_game_mode_filter
+    matches_df_filter, matches_game_mode_filter, matches_haki_filter
 )
 from components.header import HeaderComponent
 from components.footer import FooterComponent
@@ -116,6 +116,7 @@ def main(page: ft.Page):
             and (not filter_menu.selected_race or (c.get('race') or 'Unknown').strip() == filter_menu.selected_race)
             and matches_df_filter(c, filter_menu.selected_df)
             and matches_game_mode_filter(c, filter_menu.selected_mode)
+            and matches_haki_filter(c, filter_menu.selected_haki)
         ]
         current_page = 1
         render_page()
@@ -169,7 +170,7 @@ def main(page: ft.Page):
             controls=[settings_view],
             padding=0,
             bgcolor=DARK_BG if page.theme_mode == ft.ThemeMode.DARK else LIGHT_BG,
-            can_pop=False
+            can_pop=True
         )
         page.views.append(settings_route_view)
         page.update()

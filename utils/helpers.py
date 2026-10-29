@@ -197,6 +197,30 @@ def matches_df_filter(c, target):
     return False
 
 
+def matches_haki_filter(c, target):
+    if not target:
+        return True
+    raw_haki = c.get('haki')
+    items = raw_haki if isinstance(raw_haki, list) else ([raw_haki] if raw_haki else [])
+    items = [str(x).strip().lower() for x in items if x and str(x).strip().lower() not in ['none', 'unknown', '']]
+
+    t_lower = target.strip().lower()
+
+    if t_lower in ['no haki', 'no_haki', 'none', 'no']:
+        return len(items) == 0
+
+    if t_lower in ['bushoshoku', 'busoshoku', 'armament']:
+        return any('arm' in x or 'buso' in x or 'busho' in x for x in items)
+
+    if t_lower in ['kenbunshoku', 'observation']:
+        return any('obs' in x or 'ken' in x for x in items)
+
+    if t_lower in ['haoshoku', 'conqueror', 'conquerors']:
+        return any('conq' in x or 'hao' in x for x in items)
+
+    return False
+
+
 def format_bounty(bounty):
     if not bounty: return 'Unknown'
     if isinstance(bounty, str): return bounty

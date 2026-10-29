@@ -8,7 +8,7 @@ from constants import (
 from utils.theme import ThemeColors
 from utils.helpers import (
     get_devil_fruit_type, get_story_arc, get_character_game_mode,
-    matches_df_filter, matches_game_mode_filter
+    matches_df_filter, matches_game_mode_filter, matches_haki_filter
 )
 
 class FilterMenuComponent:
@@ -22,6 +22,7 @@ class FilterMenuComponent:
         self.selected_df = None
         self.selected_race = None
         self.selected_mode = None
+        self.selected_haki = None
 
         self.arc_menu_open = False
         self.is_drag_active = False
@@ -126,6 +127,7 @@ class FilterMenuComponent:
             "devil_fruit": "Devil Fruit",
             "race": "Race",
             "game_mode": "Game Mode",
+            "haki": "Haki",
         }
 
         # Tactile Neumorphic title badge for "CHARACTER FILTER"
@@ -530,11 +532,18 @@ class FilterMenuComponent:
         self.build_filter_list_items()
         self.on_filter_changed()
 
+    def clear_haki_filter(self, e=None):
+        self.selected_haki = None
+        self.update_active_filter_display()
+        self.build_filter_list_items()
+        self.on_filter_changed()
+
     def clear_all_filters(self, e=None):
         self.selected_arc = None
         self.selected_df = None
         self.selected_race = None
         self.selected_mode = None
+        self.selected_haki = None
         self.update_active_filter_display()
         self.build_filter_list_items()
         self.on_filter_changed()
@@ -563,6 +572,11 @@ class FilterMenuComponent:
                 self.active_filters_row.controls.append(self._create_filter_badge(self.selected_mode, self.clear_mode_filter))
             else:
                 self.active_filters_row.controls.append(self._create_default_badge("All Characters", lambda e: self.clear_mode_filter(e)))
+        elif self.selected_category == "haki":
+            if self.selected_haki:
+                self.active_filters_row.controls.append(self._create_filter_badge(self.selected_haki, self.clear_haki_filter))
+            else:
+                self.active_filters_row.controls.append(self._create_default_badge("All Characters", lambda e: self.clear_haki_filter(e)))
 
         if self.selected_category != "arcs" and self.selected_arc:
             self.active_filters_row.controls.append(self._create_filter_badge(self.selected_arc, self.clear_arc_filter))
@@ -577,6 +591,9 @@ class FilterMenuComponent:
         if self.selected_category != "game_mode" and self.selected_mode:
             self.active_filters_row.controls.append(self._create_filter_badge(self.selected_mode, self.clear_mode_filter))
 
+        if self.selected_category != "haki" and self.selected_haki:
+            self.active_filters_row.controls.append(self._create_filter_badge(self.selected_haki, self.clear_haki_filter))
+
         try:
             if self.active_filter_container.page:
                 self.active_filter_container.update()
@@ -589,6 +606,7 @@ class FilterMenuComponent:
             ("devil_fruit", "Devil Fruit", ft.Icons.LOCAL_FIRE_DEPARTMENT_ROUNDED),
             ("race", "Race", ft.Icons.PEOPLE_ALT_ROUNDED),
             ("game_mode", "Game Mode", ft.Icons.SPEED_ROUNDED),
+            ("haki", "Haki", ft.Icons.SHIELD_ROUNDED),
         ]
 
         items = []
@@ -672,6 +690,8 @@ class FilterMenuComponent:
             self.arc_search_input.hint_text = "Search race (Human, Fish-man, Mink...)"
         elif self.selected_category == "game_mode":
             self.arc_search_input.hint_text = "Search mode (Easy, Medium, Hard...)"
+        elif self.selected_category == "haki":
+            self.arc_search_input.hint_text = "Search haki (Bushoshoku, Kenbunshoku...)"
         self.category_dropdown.items = self.build_category_menu_items()
         self.update_active_filter_display()
         self.build_filter_list_items()
@@ -686,6 +706,8 @@ class FilterMenuComponent:
             self.selected_race = item_value
         elif category == "game_mode":
             self.selected_mode = item_value
+        elif category == "haki":
+            self.selected_haki = item_value
 
         self.update_active_filter_display()
         self.build_filter_list_items()
@@ -781,6 +803,7 @@ class FilterMenuComponent:
                 if (not self.selected_race or (c.get('race') or 'Unknown').strip() == self.selected_race)
                 and matches_df_filter(c, self.selected_df)
                 and matches_game_mode_filter(c, self.selected_mode)
+                and matches_haki_filter(c, self.selected_haki)
             ]
             dynamic_arc_counts = Counter(get_story_arc(c.get('first_appearance_arc')) for c in base_pool)
 
@@ -817,6 +840,7 @@ class FilterMenuComponent:
                 if (not self.selected_arc or get_story_arc(c.get('first_appearance_arc')) == self.selected_arc)
                 and (not self.selected_race or (c.get('race') or 'Unknown').strip() == self.selected_race)
                 and matches_game_mode_filter(c, self.selected_mode)
+                and matches_haki_filter(c, self.selected_haki)
             ]
 
             if not search_filter or any(kw in search_filter for kw in ["all", "character", "semua"]):
@@ -918,6 +942,7 @@ class FilterMenuComponent:
                 if (not self.selected_arc or get_story_arc(c.get('first_appearance_arc')) == self.selected_arc)
                 and matches_df_filter(c, self.selected_df)
                 and matches_game_mode_filter(c, self.selected_mode)
+                and matches_haki_filter(c, self.selected_haki)
             ]
             dynamic_race_counts = Counter((c.get('race') or 'Unknown').strip() for c in base_pool)
 
@@ -959,6 +984,7 @@ class FilterMenuComponent:
                 if (not self.selected_arc or get_story_arc(c.get('first_appearance_arc')) == self.selected_arc)
                 and matches_df_filter(c, self.selected_df)
                 and (not self.selected_race or (c.get('race') or 'Unknown').strip() == self.selected_race)
+                and matches_haki_filter(c, self.selected_haki)
             ]
 
             if not search_filter or any(kw in search_filter for kw in ["all", "character", "semua", "mode"]):
@@ -991,6 +1017,49 @@ class FilterMenuComponent:
                         is_selected,
                         lambda e, m=mode_name: self.select_filter("game_mode", m),
                         icon=mode_icon
+                    )
+                )
+
+        elif self.selected_category == "haki":
+            base_pool = [
+                c for c in all_characters
+                if (not self.selected_arc or get_story_arc(c.get('first_appearance_arc')) == self.selected_arc)
+                and matches_df_filter(c, self.selected_df)
+                and (not self.selected_race or (c.get('race') or 'Unknown').strip() == self.selected_race)
+                and matches_game_mode_filter(c, self.selected_mode)
+            ]
+
+            if not search_filter or any(kw in search_filter for kw in ["all", "character", "semua", "haki"]):
+                is_all_selected = self.selected_haki is None
+                self.arc_list_col.controls.append(
+                    self.make_filter_item(
+                        "All Characters",
+                        len(base_pool),
+                        is_all_selected,
+                        lambda e: self.select_filter("haki", None),
+                        icon=ft.Icons.PEOPLE_ALT_ROUNDED
+                    )
+                )
+
+            haki_types = [
+                ("Bushoshoku", ft.Icons.SHIELD_ROUNDED),
+                ("Kenbunshoku", ft.Icons.VISIBILITY_ROUNDED),
+                ("Haoshoku", ft.Icons.FLASH_ON_ROUNDED),
+                ("No haki", ft.Icons.SHIELD_OUTLINED),
+            ]
+
+            for h_name, h_icon in haki_types:
+                if search_filter and search_filter not in h_name.lower():
+                    continue
+                count = sum(1 for c in base_pool if matches_haki_filter(c, h_name))
+                is_selected = self.selected_haki == h_name
+                self.arc_list_col.controls.append(
+                    self.make_filter_item(
+                        h_name,
+                        count,
+                        is_selected,
+                        lambda e, h=h_name: self.select_filter("haki", h),
+                        icon=h_icon
                     )
                 )
 
